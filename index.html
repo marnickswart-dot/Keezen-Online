@@ -1,0 +1,1200 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Keezen Online — Vriendentest Luxe Bèta 2</title><style>
+:root{font-family:system-ui,Arial,sans-serif;color:#f7e8c4;background:#102f29}*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#25584a,#0b2520 80%);min-height:100vh}.wrap{max-width:920px;margin:auto;padding:14px}header{text-align:center;padding:10px 0}h1{font-family:Georgia,serif;margin:0;color:#f8d99a;letter-spacing:.06em}p{margin:7px 0 13px;color:#d3dfcf;font-size:14px}.board{position:relative;aspect-ratio:1;background:repeating-linear-gradient(2deg,#c99051 0px,#dfad70 5px,#d59d5e 11px,#e3b57a 17px);border:13px ridge #8b4b20;border-radius:5%;box-shadow:0 15px 40px #0008,inset 0 0 22px #79431d;overflow:hidden}.board:before{content:"";position:absolute;inset:1.3%;border:2px solid #f8d59c99;border-radius:3%;pointer-events:none}.board svg{width:100%;height:100%;display:block}.hole{fill:#0b4737;stroke:#efcc86;stroke-width:1.4;filter:drop-shadow(0 1.4px 1px #523216aa)}.hole.start{stroke-width:3.5}.hole.selected{fill:#e8d4a0;stroke:#fff}.num{fill:#f9f0d8;font-size:12px;font-weight:800;text-anchor:middle;dominant-baseline:central;pointer-events:none}.finish{stroke:#f9e2a8;stroke-width:1.5;filter:drop-shadow(0 2px 2px #542d17)}.home{stroke:#ffe9ad;stroke-width:1.3;filter:drop-shadow(0 2px 2px #43250e)}.panel{margin-top:13px;background:#143c33;border:1px solid #6b9c80;border-radius:14px;padding:13px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:space-between}button{background:#f3c575;color:#352011;border:0;border-radius:9px;padding:11px 14px;font-weight:750;cursor:pointer}button:active{transform:scale(.98)}.status{font-size:14px;line-height:1.5}.pot{cursor:pointer}.pot text{pointer-events:none}.hint{font-size:12px;color:#d7dfd2}.badge{color:#f5d99a;font-weight:700}
+ .gamepanel{margin-top:12px;background:#143c33;border:1px solid #6b9c80;border-radius:14px;padding:12px}.hand{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.playingcard{background:#fff8e8;color:#242424;border:3px solid #e5c88b;min-width:58px;height:86px;border-radius:9px;font-size:21px;font-weight:800;box-shadow:0 4px 8px #0005}.playingcard.red{color:#bb2632}.playingcard.active{border-color:#4fd4b4;transform:translateY(-7px);box-shadow:0 8px 16px #0007}.playingcard:disabled{opacity:.5}.help{text-align:center;padding:12px 0;font-size:14px;color:#e4e5d6}.actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.rules{font-size:13px;line-height:1.6;margin-top:12px;color:#d9e9db}.pawn{cursor:pointer;filter:drop-shadow(0 3px 2px #0009)}.pawn.active{stroke:#fff;stroke-width:4}.board svg{touch-action:manipulation} 
+/* Luxe afwerking zonder wijzigingen aan de goedgekeurde bordcoördinaten */
+body{background:radial-gradient(ellipse at 50% -12%,#3b6752 0%,#123c32 43%,#061c18 100%)}
+.wrap{max-width:950px}h1{text-shadow:0 2px 12px #0008}header p{color:#f1dcb2}
+.board{border:15px ridge #8c552b;box-shadow:0 20px 55px #000a,0 0 0 3px #b98142,inset 0 0 36px #552709; background:repeating-linear-gradient(3deg,#b97b3d 0px,#dfae70 5px,#c78c4b 11px,#edc184 17px)}
+.board:after{content:"";position:absolute;inset:2.2%;border:1px solid #fff3bc70;border-radius:3%;pointer-events:none}
+.panel,.gamepanel{background:linear-gradient(145deg,#1d493b,#0d2c25);border:1px solid #bb9257;box-shadow:inset 0 1px 0 #ffffff17,0 8px 20px #0005}
+.turnbox{display:flex;align-items:center;gap:13px;width:100%;padding:12px 14px;border:2px solid var(--turncolor,#c82e36);border-radius:14px;background:linear-gradient(100deg,color-mix(in srgb,var(--turncolor) 28%,#123329),#102b25 72%);box-shadow:0 0 20px color-mix(in srgb,var(--turncolor) 25%,transparent)}
+.turndot{height:48px;width:48px;flex:none;border-radius:50%;background:var(--turncolor);border:3px solid #fff2c6;box-shadow:0 0 0 4px #0003, inset -5px -6px 9px #0004}
+.turnwho{font-family:Georgia,serif;font-size:clamp(23px,5vw,34px);font-weight:800;color:#fff7d9;line-height:1.1}
+.turnsmall{font-size:12px;color:#ebdfc8;letter-spacing:.08em;text-transform:uppercase;font-weight:800}
+.turnmeta{font-size:13px;color:#e7e1d2;margin-top:4px}
+.turnnotice{width:100%;font-size:13px;color:#f5e5c9;line-height:1.5}
+.turnteams{display:flex;flex-wrap:wrap;gap:7px;width:100%}
+.teamchip{font-size:12px;padding:5px 9px;border-radius:50px;background:#ffffff13;border:1px solid #ffffff35}
+.teamchip.now{border-color:#fff0b1;background:#ffffff29;font-weight:800}
+.potlast{font-family:Georgia,serif;font-weight:800}
+@media(max-width:540px){.wrap{padding:9px}.board{border-width:9px}.panel{padding:9px}.turndot{height:42px;width:42px}.playingcard{min-width:53px;height:79px}}
+
+/* Luxe 3D-uitvoering: uitsluitend vormgeving; speelveldcoördinaten en spelcode blijven identiek. */
+:root{color-scheme:dark}
+body{background:radial-gradient(ellipse at 50% 0%,#355c4d 0%,#163b32 32%,#081e1b 75%,#041310 100%)}
+.wrap{max-width:980px;padding:clamp(9px,2.3vw,22px)}
+header{padding:15px 0 18px}
+h1{font-family:Georgia,serif;font-size:clamp(28px,5vw,43px);letter-spacing:.035em;color:#ffe6aa;text-shadow:0 2px 0 #6d3e1d,0 5px 13px #000a,0 0 26px #f5b65b44}
+.board{isolation:isolate;border:clamp(10px,1.7vw,18px) ridge #9b602e;border-radius:4.5%;background:repeating-linear-gradient(3deg,#c58b4e 0px,#e6b779 5px,#c99353 11px,#efc389 17px);box-shadow:0 0 0 3px #efc987,0 0 0 8px #47240f,0 24px 55px #000c,0 44px 90px #0008,inset 0 0 35px #562609b8,inset 0 8px 20px #fff5d72b}
+.board:before{inset:1.1%;border:2px solid #ffe3a0a6;box-shadow:inset 0 0 18px #5a2a1266,0 0 5px #fff4c555}
+.board:after{content:'';position:absolute;inset:0;pointer-events:none;border-radius:3%;background:linear-gradient(140deg,#fff7d51c 0%,transparent 29%,transparent 70%,#4b230d18 100%);z-index:2}
+.hole{fill:#0a4335;stroke:#f9d99a;stroke-width:1.8;filter:drop-shadow(0 3px 1.5px #3d1c0bba) drop-shadow(0 -1px 1px #fff2bf44)}
+.hole.start{stroke-width:4}
+.num{fill:#fff3d7;font-weight:900;paint-order:stroke;stroke:#09281d;stroke-width:.7px}
+.finish,.home{stroke:#ffe5a3;stroke-width:2.2;filter:drop-shadow(0 4px 2px #3d1b0eaf) drop-shadow(0 -1px 1px #fff6d25e)}
+.pawn{filter:drop-shadow(0 5px 3px #241107c7) drop-shadow(0 -1px 1px #fff7c966)}
+.panel,.gamepanel{background:linear-gradient(145deg,#205044,#0f2e28 65%,#0a251f);border:1px solid #c9a76d88;border-radius:18px;box-shadow:0 9px 25px #0007,inset 0 1px 0 #fff5c12a,inset 0 -4px 12px #0003}
+button{background:linear-gradient(165deg,#ffe6a4,#e8b85f 55%,#b9782d);color:#33200d;border:1px solid #fff1b66e;box-shadow:0 4px 0 #75451c,0 7px 13px #0006,inset 0 1px 1px #fff9d5;font-weight:800;transition:filter .15s,transform .15s}
+button:hover{filter:brightness(1.08)}button:active{transform:translateY(3px);box-shadow:0 1px 0 #75451c,0 2px 6px #0005}
+.playingcard{background:linear-gradient(135deg,#fffefa,#fff2d8);border:2px solid #d7aa5a;border-radius:11px;box-shadow:0 3px 0 #a37a42,0 7px 14px #0008,inset 0 0 0 2px #fffaf0}
+.playingcard.active{border-color:#69f4c9;transform:translateY(-8px);box-shadow:0 3px 0 #287f68,0 13px 20px #0009,0 0 15px #4fd4b477}
+.turnbox{box-shadow:inset 0 2px 0 #fff6d330,0 8px 20px #0007}
+@media(prefers-reduced-motion:reduce){button{transition:none}}
+
+
+/* Koninklijke bordafwerking: hout, fineer en zachte 3D-lichtval. */
+.board{background:
+ radial-gradient(ellipse at 50% 45%,#f4cf9170 0%,transparent 56%),
+ repeating-linear-gradient(89deg,transparent 0 9px,#7a45141b 10px 11px,transparent 12px 24px),
+ repeating-linear-gradient(3deg,#b98243 0px,#e5b879 5px,#c88c4c 11px,#f0c98f 17px);
+ box-shadow:0 0 0 3px #f7d99d,0 0 0 8px #4b290f,0 0 0 11px #b67b38,0 25px 60px #000c,0 42px 95px #0009,inset 0 0 48px #5429099c,inset 0 2px 8px #fff0bc80}
+.board:before{border:3px double #f8df9cb0;box-shadow:inset 0 0 25px #51260885,0 0 7px #fff2b26e}
+.hole{filter:drop-shadow(0 3px 2px #27180dd9) drop-shadow(0 -1px 1px #fff1bd88)}
+.finish,.home{filter:drop-shadow(0 4px 3px #311708c9) drop-shadow(0 -1px 1px #fff3c17a)}
+.pot{filter:drop-shadow(0 8px 7px #261206a6)}
+
+/* Rustige luxe-uitvoering: symmetrisch gefreesde houten lijst, zonder schuine ridge-rand. */
+:root{background:#152622}
+html{background:#152622}
+body{
+ background:
+ radial-gradient(ellipse 72% 52% at 50% 33%,#36544b 0%,#263e37 40%,transparent 85%),
+ repeating-linear-gradient(90deg,#00000005 0 1px,transparent 1px 9px),
+ linear-gradient(155deg,#1a302a,#0b1a17 78%);
+ background-attachment:fixed;
+}
+.wrap{max-width:970px}
+.board{
+ border:12px solid #704324;
+ border-radius:26px;
+ background:
+ radial-gradient(ellipse at 44% 32%,#e5bd83 0%,transparent 69%),
+ repeating-linear-gradient(91deg,transparent 0 18px,#784b2b0c 19px 20px,transparent 21px 38px),
+ linear-gradient(125deg,#c79660,#dcb17b 40%,#b9834d 100%);
+ box-shadow:
+ 0 0 0 2px #d6ad6c,
+ 0 0 0 6px #3c2417,
+ 0 0 0 8px #9a6a3d,
+ 0 23px 55px #0009,
+ 0 45px 80px #0005,
+ inset 0 0 0 3px #e9ca93,
+ inset 0 0 0 7px #87562e,
+ inset 0 0 30px #6d3e2060;
+ overflow:hidden;
+}
+.board:before{
+ content:"";position:absolute;inset:10px;
+ border:2px solid #f2d9a5a6;border-radius:11px;
+ box-shadow:inset 0 0 0 2px #6c462933;
+ pointer-events:none;z-index:1;
+}
+.board:after{
+ content:"";position:absolute;inset:0;border-radius:12px;
+ background:linear-gradient(138deg,#fff7db15 0%,transparent 31%,transparent 69%,#42230b12 100%);
+ pointer-events:none;z-index:2;
+}
+.board svg{position:relative;z-index:1}
+.hole{filter:drop-shadow(0 2px 1.5px #2e2419b8)}
+.panel,.gamepanel{background:linear-gradient(155deg,#1b3831,#122a25);border-color:#b49a6e75}
+@media(max-width:540px){.board{border-width:8px;border-radius:17px;box-shadow:0 0 0 2px #d6ad6c,0 0 0 4px #3c2417,0 14px 35px #0009,inset 0 0 0 3px #e9ca93,inset 0 0 0 6px #87562e}.board:before{inset:6px;border-radius:7px}}
+
+.no-moves-warning{margin:12px 0;padding:15px 12px;border:3px solid #f4c46c;border-radius:12px;background:#65391d;color:#fff4d6;text-align:center;font-weight:800;font-size:17px;box-shadow:0 0 18px #e5a73d66;line-height:1.5}
+/* De grote waarschuwing is zelf de knop om de hand af te leggen. */
+button.no-moves-warning{display:block;width:100%;cursor:pointer;font-family:inherit;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button.no-moves-warning[hidden]{display:none}
+.no-moves-warning .no-moves-subtitle{display:block;font-size:14px;font-weight:600;margin-top:5px}
+.no-moves-warning .no-moves-cta{display:inline-block;margin-top:12px;padding:10px 20px;border-radius:10px;background:#f4c46c;color:#38210c;font-size:17px;font-weight:900;box-shadow:0 3px 0 #9c692c}
+button.no-moves-warning:active{transform:scale(.99)}
+button.no-moves-warning:focus-visible{outline:3px solid #fff2c3;outline-offset:3px}
+#discardBtn.must-discard{background:#f4c46c;color:#3a240e;border:3px solid #fff2c3;font-weight:900;box-shadow:0 0 15px #e5a73d99;animation:discardPulse 1.4s ease-in-out infinite}
+@keyframes discardPulse{50%{box-shadow:0 0 24px #ffd77f;transform:scale(1.035)}}
+
+/* Meldingen uitsluitend in de vrije ruimte bovenin de centrale kaartenpot. */
+.board-message{position:absolute;z-index:8;top:37%;left:50%;transform:translateX(-50%);width:27%;max-height:12%;overflow:auto;padding:5px 6px;text-align:center;border:1.5px solid #f3d394;border-radius:9px;background:linear-gradient(145deg,rgba(12,48,39,.97),rgba(18,32,28,.97));color:#fff3cf;font-size:clamp(8px,1.3vw,13px);font-weight:800;line-height:1.25;box-shadow:0 4px 12px #0009;pointer-events:none;white-space:pre-line;overflow-wrap:anywhere}
+.board-message.warning{background:linear-gradient(145deg,rgba(107,39,22,.98),rgba(59,26,20,.98));border-color:#ffdf76;color:#fff6d9}
+.board-message[hidden]{display:none}
+/* De titel van de kaartenpot maakt tijdelijk plaats voor de melding. */
+.board:has(.board-message:not([hidden])) #discard > text:first-of-type{opacity:0}
+@media(max-width:540px){.board-message{top:37%;width:27%;padding:3px 4px;border-radius:6px;font-size:clamp(7px,2.2vw,10px)}}
+
+/* Compacte mobiele indeling: beurt boven bord, speelkaarten direct eronder */
+.turn-above{margin:7px 0 12px}
+.turn-above .status{width:100%}
+.turn-above .turnbox{padding:8px 12px;gap:10px}
+.turn-above .turndot{height:34px;width:34px}
+.turn-above .turnwho{font-size:clamp(20px,4.5vw,28px)}
+.turn-above .turnmeta{font-size:11px;margin-top:2px}
+.turn-above .turnteams{margin-top:5px;gap:5px}
+.turn-above .turnnotice{margin-top:4px}
+.gamepanel{margin-top:10px}
+@media(max-width:540px){header{padding:2px 0}header h1{font-size:23px}header p{display:none}.turn-above{margin:5px 0 9px}.turn-above .turnbox{padding:7px 9px}.turn-above .turnteams{font-size:11px}.gamepanel{padding:9px}.help{padding:7px 0}.actions button{padding:9px 10px}}
+
+/* Bèta 3.0: mobiel leesbaarder, zonder spelregels of bordposities te wijzigen. */
+@media(max-width:600px){
+ .wrap{padding:5px 4px 12px;max-width:none}
+ .board{width:100%;border-width:6px;border-radius:13px;box-shadow:0 0 0 1px #d6ad6c,0 0 0 3px #3c2417,0 10px 24px #0009,inset 0 0 0 2px #e9ca93,inset 0 0 0 4px #87562e}
+ .board:before{inset:4px;border-width:1px}
+ .turn-above{margin:3px 2px 8px}
+ .turn-above .turnbox{padding:7px 9px}
+ .turnnotice{font-size:12px;line-height:1.35}
+ .gamepanel{margin-top:8px;padding:9px 6px 12px;border-radius:13px}
+ .hand{gap:5px;flex-wrap:nowrap;justify-content:center}
+ .playingcard{flex:0 1 58px;min-width:0;width:clamp(43px,13vw,58px);height:clamp(62px,18vw,78px);font-size:clamp(16px,4.8vw,21px);border-radius:9px;padding:4px 2px}
+ .actions{gap:7px}
+ .actions button{font-size:clamp(13px,3.6vw,16px);min-height:48px;padding:11px 12px;border-radius:10px}
+ .help{font-size:13px;padding:10px 4px}
+ .hint{font-size:11px;margin-top:9px}
+ .num{font-size:15px;stroke-width:1px}
+ .hole{stroke-width:2.1}
+ .pawn{stroke-width:1.5}
+}
+@media(max-width:365px){.actions button{padding:10px 8px}.playingcard{width:18%;height:62px}}
+/* Kaarten zonder geldige zet worden meteen transparant getoond. */
+.playingcard.unplayable{opacity:.32;filter:grayscale(.7);box-shadow:none;border-style:dashed;}
+.playingcard.unplayable.active{opacity:.45;transform:none;box-shadow:0 0 0 2px #d6a75e;}
+.playingcard.unplayable:focus-visible{outline:3px solid #ffdf87;outline-offset:3px;}
+
+/* Bèta 3.4: meer ruimte op mobiel en opvallende, speelbare pionnen. */
+header, header + div {display:none !important}
+.turn-above{margin-top:3px}
+.pawn-can-play .pawn-halo{animation:pawnGlow 1.15s ease-in-out infinite;transform-box:fill-box;transform-origin:center;pointer-events:none}
+.pawn-can-play .pawn{animation:pawnShine 1.15s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pawnGlow{0%,100%{opacity:.28;stroke-width:3;transform:scale(.98)}50%{opacity:1;stroke-width:7;transform:scale(1.18)}}
+@keyframes pawnShine{0%,100%{filter:drop-shadow(0 0 2px #fff4b2)}50%{filter:drop-shadow(0 0 11px #fff5a5) drop-shadow(0 0 7px #fff)}}
+@media(prefers-reduced-motion:reduce){.pawn-can-play .pawn-halo,.pawn-can-play .pawn{animation:none}.pawn-can-play .pawn-halo{opacity:1;stroke-width:5}}
+
+/* Bèta 3.5: compacte melding, speelkaarten direct onder het bord. */
+[hidden]{display:none !important}
+.gamepanel{margin-top:5px}
+button.no-moves-warning{margin:0 0 7px;padding:7px 10px;border-width:2px;border-radius:10px;font-size:13px;line-height:1.2;box-shadow:0 0 8px #e5a73d44}
+.no-moves-warning .no-moves-subtitle{display:inline;font-size:12px;font-weight:500;margin:0 0 0 5px}
+.no-moves-warning .no-moves-cta{display:inline-block;margin:0 0 0 8px;padding:5px 9px;border-radius:7px;font-size:12px;box-shadow:none}
+@media(max-width:600px){
+ .gamepanel{margin-top:5px;padding-top:7px}
+ button.no-moves-warning{font-size:12px;padding:7px 6px;margin-bottom:6px}
+ .no-moves-warning .no-moves-subtitle{display:none}
+ .no-moves-warning .no-moves-cta{font-size:12px;padding:5px 8px}
+}
+
+/* Bèta 3.6: twee kleine knoppen bovenaan; geen dubbele bediening onder de kaarten. */
+.top-controls{display:flex;justify-content:flex-end;align-items:center;gap:7px;margin:1px 1px 7px}
+.top-controls button{appearance:none;border:1px solid #bd9d65;border-radius:8px;background:#1d3c32;color:#f6dfb1;font:600 12px system-ui,sans-serif;padding:6px 10px;min-height:32px;cursor:pointer;touch-action:manipulation}
+.top-controls button:active{background:#315a46}
+.top-controls button:focus-visible{outline:2px solid #f4ce83;outline-offset:2px}
+#discardBtn[hidden]{display:none!important}
+#rules{margin:0 0 8px;max-height:45vh;overflow:auto}
+@media(max-width:600px){.top-controls{margin:0 2px 5px;gap:6px}.top-controls button{font-size:11px;padding:5px 8px;min-height:29px}.turn-above{margin-top:0}}
+
+/* Bèta 3.7: de aanklikbare weglegmelding pulseert goud wanneer geen zet mogelijk is. */
+button.no-moves-warning:not([hidden]){
+  border-color:#ffe29a;
+  animation:goldenDiscardGlow 1.25s ease-in-out infinite;
+  transform-origin:center;
+}
+button.no-moves-warning:not([hidden]) .no-moves-cta{
+  animation:goldenDiscardCta 1.25s ease-in-out infinite;
+}
+@keyframes goldenDiscardGlow{
+  0%,100%{box-shadow:0 0 5px 2px #f4c46c66,0 0 12px #d79c3277;border-color:#c99a47}
+  50%{box-shadow:0 0 15px 5px #ffdd7ccc,0 0 27px 8px #f2ad47a6;border-color:#fff3b6}
+}
+@keyframes goldenDiscardCta{
+  0%,100%{background:#f4c46c}
+  50%{background:#fff0ad}
+}
+@media(prefers-reduced-motion:reduce){
+  button.no-moves-warning:not([hidden]),button.no-moves-warning:not([hidden]) .no-moves-cta{animation:none;box-shadow:0 0 10px 3px #ffdd7c99}
+}
+
+/* Bèta 3.8: stapkeuze kaart 7 in een centraal dialoogvenster. */
+.seven-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(4,20,17,.68);backdrop-filter:blur(3px)}
+.seven-overlay[hidden]{display:none!important}
+.seven-dialog{box-sizing:border-box;width:min(440px,94vw);max-height:min(85vh,650px);overflow-y:auto;padding:22px 16px 18px;border:3px solid #f5ce77;border-radius:20px;background:linear-gradient(155deg,#193d32,#10251f 70%);color:#fff2cd;text-align:center;box-shadow:0 0 18px 5px #f6c66099,0 0 40px 9px #d9a13b88,0 15px 40px #000b;animation:sevenGoldPulse 1.3s ease-in-out infinite}
+.seven-options{display:flex;flex-wrap:wrap;justify-content:center;gap:9px;margin:0;padding:0;border:0}
+.seven-options strong{font-size:clamp(17px,4.4vw,22px);line-height:1.35;margin-bottom:10px;color:#ffdf98}
+.seven-options button{min-width:85px;min-height:48px;font-size:16px;font-weight:800;touch-action:manipulation}
+.seven-options button:last-child{background:#2b493f;color:#ffe6b6;border:1px solid #b89b6a}
+@keyframes sevenGoldPulse{0%,100%{box-shadow:0 0 10px 3px #f6c66077,0 0 26px #d9a13b66,0 15px 40px #000b;border-color:#d8aa52}50%{box-shadow:0 0 22px 7px #ffdd90cc,0 0 48px 13px #e9ac4d88,0 15px 40px #000b;border-color:#fff3bb}}
+@media(prefers-reduced-motion:reduce){.seven-dialog{animation:none}}
+/* Bèta 3.9: klikbare melding centraal op het speelbord, zonder extra balk onderaan. */
+.board>button.no-moves-warning{position:absolute;z-index:35;left:50%;top:50%;transform:translate(-50%,-50%);width:min(76%,350px);max-width:calc(100% - 28px);margin:0;padding:13px 12px;border:3px solid #f8d17a;border-radius:16px;background:linear-gradient(145deg,#56341d,#223f32);color:#fff2c9;font-size:clamp(13px,3.3vw,19px);line-height:1.35;white-space:normal;animation:goldenDiscardGlow 1.25s ease-in-out infinite}
+.board>button.no-moves-warning:active{transform:translate(-50%,-50%) scale(.98)}
+.board>button.no-moves-warning .no-moves-subtitle{display:block;margin:5px 0;font-size:clamp(11px,2.6vw,14px)}
+.board>button.no-moves-warning .no-moves-cta{display:block;margin:9px auto 0;width:max-content;max-width:100%;padding:8px 12px;font-size:clamp(12px,3vw,16px)}
+@media(prefers-reduced-motion:reduce){.board>button.no-moves-warning{animation:none}}
+
+/* Bèta 4.1: een gespeelde kaart vliegt zichtbaar naar de centrale kaartenpot. */
+.card-flight{position:fixed!important;z-index:1000!important;pointer-events:none!important;margin:0!important;transform-origin:center center;will-change:transform,opacity;box-shadow:0 12px 25px #0009,0 0 15px #f4c46a99!important;transition:none!important;}
+@media(prefers-reduced-motion:reduce){.card-flight{box-shadow:none!important}}
+
+/* Schudden en delen rechtstreeks op het speelbord. */
+.board{position:relative}
+.deal-board[hidden]{display:none!important}
+.deal-board{position:absolute;inset:0;z-index:25;pointer-events:none}
+.deal-deck,.deal-flying{position:absolute;width:clamp(24px,6.2vw,49px);height:clamp(35px,8.7vw,69px);border:2px solid #f6d38b;border-radius:7px;background:repeating-linear-gradient(45deg,#722a2b 0 5px,#b04c40 5px 9px);box-shadow:0 3px 9px #0009,inset 0 0 0 3px #f8d9a7;left:50%;top:50%;transform:translate(-50%,-50%)}
+.deal-flying{z-index:3}
+.deal-board-label{position:absolute;top:37%;left:50%;transform:translateX(-50%);white-space:nowrap;color:#ffe5a3;font:700 clamp(11px,2.5vw,17px) Georgia,serif;text-shadow:0 2px 5px #000,0 0 9px #000;background:#183428dc;padding:4px 10px;border-radius:14px;border:1px solid #cfa659}
+body.dealing #hand .playingcard{opacity:0;transition:opacity .17s ease-out}
+body.dealing #hand .playingcard.dealt-visible{opacity:1}
+@media(prefers-reduced-motion:reduce){.deal-board-label{animation:none}}
+
+/* Luxe klassieke speelkaarten met hoekindices en centraal symbool. */
+.playingcard{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;font-family:Georgia,'Times New Roman',serif;padding:3px!important;background:linear-gradient(140deg,#fffef9 0%,#fff9eb 65%,#f5ebd5 100%);border:2px solid #c6a36b;box-shadow:0 2px 0 #886943,0 5px 12px #0007,inset 0 0 0 2px #fffdf6}
+.playingcard:before{content:'';position:absolute;inset:5px;border:1px solid #d9c5a2;border-radius:4px;pointer-events:none}
+.playingcard .card-corner{position:absolute;top:5px;left:5px;display:flex;flex-direction:column;align-items:center;line-height:.84;font-size:clamp(11px,3.4vw,16px);font-weight:900;z-index:1}
+.playingcard .card-corner .card-small-suit{font-size:.8em;margin-top:3px}
+.playingcard .card-corner.bottom{top:auto;left:auto;bottom:5px;right:5px;transform:rotate(180deg)}
+.playingcard .card-center{display:flex;align-items:center;justify-content:center;position:relative;font-size:clamp(26px,8vw,43px);line-height:1;text-shadow:0 1px 0 #fff8e5}
+.playingcard .card-center.face{font-size:clamp(19px,6vw,30px);width:56%;height:69%;border:1px solid #b59a70;background:linear-gradient(145deg,#f5e9d2,#e9d4ac);box-shadow:inset 0 0 0 2px #fff7e5}
+.playingcard .card-center.face .face-suit{position:absolute;font-size:13px;bottom:2px;right:2px}
+.playingcard .card-center.ace{font-size:clamp(34px,10vw,49px)}
+.playingcard.active{border-color:#69f4c9}
+.playingcard.unplayable{opacity:.32}
+
+/* Bèta 4.7: rijk geïllustreerde klassieke hofkaarten en luxe cijferkaarten. */
+.playingcard{background:linear-gradient(135deg,#fffef9 0%,#fff5dd 55%,#f5e4bf 100%);border:2px solid #c29a4e;box-shadow:0 3px 0 #88663a,0 5px 12px #0007,inset 0 0 0 2px #fffdf5}
+.playingcard:before{inset:4px;border:1px solid #c9a66c}
+.playingcard .card-center.face{width:62%;height:76%;padding:0;border:1px solid #bc8b44;border-radius:3px;background:#fff6df;overflow:hidden;box-shadow:inset 0 0 0 1px #fdf5db}
+.playingcard .royal-art{display:block;width:100%;height:100%;filter:drop-shadow(0 1px 1px #0003)}
+.playingcard .card-center.face .face-suit{font-size:10px;bottom:0;right:0;background:#fff8e9dd;border-radius:2px;padding:0 1px}
+.playingcard .card-center:not(.face){filter:drop-shadow(0 1px 0 #d7b579)}
+.playingcard .card-corner{font-family:Georgia,serif}
+/* Geslagen pion: zichtbaar terug naar het eigen honk. */
+.captured-pawn-flight{position:fixed;z-index:80;width:32px;height:32px;border-radius:50%;border:3px solid #fff0b0;display:grid;place-items:center;color:white;font:bold 13px system-ui;box-shadow:0 0 0 5px #f9d27b66,0 0 24px 10px #ffd56eaa,0 5px 12px #0009;pointer-events:none;transform:translate(-50%,-50%)}
+
+/* Luxe schuin bord met diepte; blijft volledig aanklikbaar op mobiel. */
+.board-perspective{perspective:1350px;perspective-origin:50% 38%;padding:3px 4px 28px;overflow:visible}
+.board-perspective .board{transform-origin:50% 50%;transform:rotateX(12deg) rotateZ(-1deg) scale(.965);box-shadow:0 10px 0 #6a381d,0 18px 0 #452313,0 32px 32px #000a,inset 0 0 22px #79431d;transition:transform .4s ease;overflow:visible}
+.board-perspective .board::after{content:"";position:absolute;inset:0;border-radius:4%;box-shadow:inset 0 0 0 2px #f6d99a55;pointer-events:none}
+.board-perspective #svg{overflow:visible;position:relative;z-index:1}
+.board-perspective .board-message,.board-perspective .no-moves-warning{transform:translate(-50%,-50%) translateZ(20px)}
+.pawn-3d-shadow{filter:blur(3px);opacity:.65;pointer-events:none}
+.pawn-3d-body{filter:drop-shadow(1px 3px 2px #0008);pointer-events:none}
+.pawn-3d-top{pointer-events:none}
+@media(max-width:560px){.board-perspective{perspective:850px;padding-bottom:18px}.board-perspective .board{transform:rotateX(10deg) rotateZ(-1deg) scale(.985)}}
+@media(prefers-reduced-motion:reduce){.board-perspective .board{transition:none}}
+/* Bèta 5.0: speelgaten zonder zichtbare nummers. */
+.board .num{display:none!important}
+/* Telefoonvriendelijker: meer ruimte voor het speelbord, duidelijke gaten en pionnen. */
+@media(max-width:600px){
+ .wrap{padding-left:2px;padding-right:2px}
+ .board-perspective{padding-left:0;padding-right:0;padding-bottom:12px;perspective:1000px}
+ .board-perspective .board{transform:rotateX(7deg) rotateZ(-.5deg) scale(1);border-width:5px}
+ .hole{stroke-width:2.8;filter:drop-shadow(0 2px 1px #352014aa)}
+ .hole.start{stroke-width:4.5}
+ .finish,.home{stroke-width:2.6}
+ .pawn-can-play .pawn-halo{filter:drop-shadow(0 0 7px #ffe27d)}
+}
+.num{display:none!important}
+
+/* Bèta 5.7: uitsluitend minder ruimte tussen beurtbalk en speelbord. */
+.turn-above{margin-bottom:1px!important}
+.board-perspective{padding-top:0!important}
+@media(max-width:600px){.turn-above{margin-bottom:0!important}.board-perspective{padding-top:0!important}}
+
+/* Bèta 5.8: vaste hoogte voor de beurtbalk; voorkomt springen van het bord. */
+.turn-above .status{height:146px;min-height:146px;max-height:146px;overflow:hidden;display:flex;flex-direction:column;gap:3px;overflow-anchor:none}
+.turn-above .turnbox{flex:0 0 auto;min-height:65px;box-sizing:border-box}
+.turn-above .turnteams{flex:0 0 auto;min-height:29px;align-content:start}
+.turn-above .turnnotice{flex:1 1 auto;min-height:0;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;line-height:1.25}
+.board-perspective{overflow-anchor:none}
+@media(max-width:540px){
+ .turn-above .status{height:140px;min-height:140px;max-height:140px}
+ .turn-above .turnbox{min-height:61px}
+ .turn-above .turnteams{min-height:27px}
+ .turn-above .teamchip{white-space:nowrap;padding:3px 6px;font-size:10px}
+ .turn-above .turnnotice{font-size:11px}
+}
+
+.mode-screen{position:fixed;inset:0;background:linear-gradient(155deg,#0b261c,#153c2d);z-index:9999;display:grid;place-items:center;padding:18px;overflow:auto}
+.mode-screen[hidden]{display:none!important}
+.mode-card{width:min(440px,100%);padding:22px;border:2px solid #e8c383;border-radius:20px;background:#17372c;box-shadow:0 20px 65px #000b;color:#f7e9c9}
+.mode-card h2{margin:0 0 8px;text-align:center;color:#f9d990}
+.mode-card p{text-align:center;margin:0 0 18px}
+.mode-card label{display:block;margin-bottom:7px}
+.mode-card input{box-sizing:border-box;width:100%;padding:12px;border-radius:9px;border:1px solid #d7ba82;font-size:17px;margin-bottom:16px}
+.mode-choice{display:block;width:100%;text-align:left;margin:9px 0;padding:13px 14px;border:1px solid #d4b374;border-radius:12px;background:#f0d49d;color:#2c2418;font-weight:750;font-size:16px;cursor:pointer}
+.mode-choice small{display:block;font-weight:450;font-size:12px;margin-top:5px}
+.mode-choice:disabled{opacity:.5;cursor:not-allowed}
+
+.card-back{background:repeating-linear-gradient(45deg,#143e4c 0 5px,#1f5664 5px 10px)!important;border:3px solid #f0d69a!important;box-shadow:0 2px 0 #765129,0 5px 12px #0008,inset 0 0 0 3px #163441!important;color:#f4d28e!important;cursor:default;opacity:1!important}
+.card-back::before{border:1px solid #e5c080!important}
+.card-back-ornament{display:grid;place-items:center;width:68%;height:70%;border:2px double #e7c787;border-radius:50%;font-size:clamp(22px,7vw,36px);text-shadow:0 1px 3px #000}
+
+/* Namen staan buiten het speelbord, zodat geen enkel gat of pion bedekt wordt. */
+.player-name-bar{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:10px 0 14px}
+.player-name-chip{min-width:0;display:flex;align-items:center;gap:7px;padding:8px 9px;background:#173a31;border:2px solid var(--chip-color);border-radius:10px;color:#fff3d5;box-shadow:0 3px 8px #0005}
+.player-name-chip.is-turn{background:#314c39;border-color:#ffd36a;animation:goldenPlayerPulse 1.4s ease-in-out infinite;position:relative;z-index:1}
+.player-name-dot{width:12px;height:12px;flex:none;border-radius:50%;background:var(--chip-color);border:1px solid #fff8c7}
+.player-name-info{min-width:0;display:flex;flex-direction:column;gap:1px}
+.player-name-info strong{font-size:clamp(11px,1.7vw,15px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.player-name-info small{font-size:10px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:560px){.player-name-bar{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:9px 0 13px}.player-name-chip{padding:7px 9px}}
+
+/* De oude beurtbalk blijft uitsluitend als onzichtbare status voor de spelcode bestaan. */
+.turn-above .status{display:none!important}
+.turn-above{margin-bottom:0!important;padding-bottom:0!important}
+@keyframes goldenPlayerPulse{
+  0%,100%{border-color:#c58b21;box-shadow:0 0 0 1px #b77818,0 0 4px #ffcd49aa,0 3px 9px #0007}
+  50%{border-color:#fff2a4;box-shadow:0 0 0 3px #ffd64d,0 0 18px 5px #ffc53bbb,0 3px 9px #0007}
+}
+@media(prefers-reduced-motion:reduce){.player-name-chip.is-turn{animation:none;box-shadow:0 0 0 3px #ffd64d,0 0 12px #ffcb50}}
+
+/* Bèta 7.2: feestelijk startscherm, getekende 3D-pionnen en avatarselectie. */
+.mode-screen{background:radial-gradient(ellipse at 50% 30%,#255b42 0,#103628 48%,#071d18 100%);isolation:isolate}
+.mode-screen::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.28;background:repeating-linear-gradient(40deg,transparent 0 90px,#d9ac6730 91px 92px,transparent 93px 180px)}
+.mode-card{position:relative;max-width:460px;padding:22px 23px 24px;border:2px solid #d8ad63;border-radius:24px;background:linear-gradient(150deg,#214a38,#103228 76%);box-shadow:0 25px 80px #000a,inset 0 0 0 3px #ffffff0b;overflow:hidden}
+.mode-card::after{content:"✦";position:absolute;top:15px;right:20px;color:#e4c07b;opacity:.8;font-size:22px}
+.welcome-top{text-align:center}
+.welcome-kicker{font-size:10px;letter-spacing:2.4px;font-weight:800;color:#d8ba79;margin:0 0 6px}
+.mode-card .welcome-top h2{font-size:clamp(25px,5vw,33px);line-height:1.15;margin:0;color:#ffdf94;text-shadow:0 2px 8px #0008}
+.mode-card .welcome-top p{font-size:13px;color:#e9ddbd;margin:8px 0 0}
+.welcome-pawns{display:flex;align-items:end;justify-content:center;gap:17px;height:94px;margin:4px 0 10px;filter:drop-shadow(0 7px 6px #0008)}
+.welcome-pawn{--pc:#d7383b;--ph:#ff9c8f;--pd:#67151e;display:block;position:relative;width:40px;height:44px;border-radius:48% 48% 30% 30%;background:linear-gradient(95deg,var(--pd),var(--pc) 43%,var(--ph) 70%,var(--pc));box-shadow:inset -5px -2px 7px #0005,inset 4px 0 6px #fff4,0 3px 0 var(--pd);transform:rotate(-5deg)}
+.welcome-pawn::before{content:"";position:absolute;width:30px;height:30px;border-radius:50%;left:5px;top:-23px;background:radial-gradient(circle at 34% 25%,#fff9 0 8%,var(--ph) 12%,var(--pc) 53%,var(--pd) 100%);box-shadow:0 2px 2px #0005}
+.welcome-pawn::after{content:"";position:absolute;left:-5px;right:-5px;bottom:-7px;height:15px;border-radius:50%;background:linear-gradient(90deg,var(--pd),var(--pc),var(--ph),var(--pd));border:1px solid #0005}
+.wp-purple{--pc:#8e48bd;--ph:#dcb1ff;--pd:#38135c;transform:rotate(6deg) translateY(-6px)}
+.wp-yellow{--pc:#edbb2d;--ph:#ffed99;--pd:#98620c;transform:rotate(-5deg) translateY(2px)}
+.wp-green{--pc:#289e60;--ph:#9af0ac;--pd:#10512d;transform:rotate(5deg) translateY(-4px)}
+.welcome-identity{padding:12px 13px 11px;border:1px solid #d4b27655;border-radius:14px;background:#061d1666;margin-bottom:14px}
+.mode-card .welcome-identity label{font-size:12px;font-weight:750;color:#f9e5b7;margin-bottom:6px}
+.mode-card .welcome-identity input{background:#f9efda;color:#30251b;border:1px solid #e0bb73;margin-bottom:12px;padding:10px 12px}
+.avatar-picker{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px}
+.avatar-option{display:grid;place-items:center;aspect-ratio:1;border-radius:10px;background:#315345;border:2px solid #78947e;cursor:pointer;font-size:clamp(17px,4vw,26px);padding:0;transition:transform .15s,border-color .15s}
+.avatar-option.selected{border-color:#ffdf77;background:#725d32;box-shadow:0 0 0 2px #e7c46980;transform:translateY(-2px)}
+.avatar-option:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.welcome-mode-title{color:#e3c88b;font-size:10px;letter-spacing:1.6px;font-weight:800;margin:4px 0 7px}
+.mode-card .mode-choice{background:linear-gradient(#f9e2b2,#e8c486);border:1px solid #ffe5a5;box-shadow:0 3px 0 #8d602f;padding:11px 13px;margin:9px 0;font-size:14px}
+.mode-card .mode-choice small{font-size:11px}
+.mode-card .mode-choice:not(:disabled):active{transform:translateY(2px);box-shadow:0 1px 0 #8d602f}
+.player-avatar{display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:50%;background:#f6e3b8;border:2px solid var(--chip-color);box-shadow:0 1px 4px #0008;font-size:18px;line-height:1}
+@media(max-width:480px){.mode-card{padding:16px 15px}.welcome-pawns{height:77px;gap:14px}.welcome-pawn{transform:scale(.85)}.avatar-picker{gap:4px}.player-avatar{width:26px;height:26px;font-size:16px}.player-name-chip{gap:5px;padding:6px}}
+.discard-bundle{position:fixed;z-index:1100;pointer-events:none;transform-origin:center;filter:drop-shadow(0 10px 9px #0009);will-change:transform,opacity}
+.discard-bundle-card{margin:0!important;opacity:1!important}
+
+/* 7.5: gezellige speeltafel; alleen het startscherm, niet het spelbord. */
+.mode-screen{background:radial-gradient(ellipse at 50% 55%,#276149 0%,#153e30 38%,#09251c 75%,#051711 100%)}
+.mode-screen::before{background:repeating-linear-gradient(90deg,#b48a3b0b 0 1px,transparent 2px 110px),repeating-linear-gradient(0deg,#e8c1770a 0 1px,transparent 2px 110px);opacity:.7}
+.mode-screen::after{content:"";position:absolute;inset:14px;border:1px solid #d9b46b25;border-radius:26px;pointer-events:none;box-shadow:inset 0 0 90px #020f0b90}
+.mode-card{z-index:2;width:min(460px,100%);border:2px solid #e3bd73;background:linear-gradient(155deg,#2c5941 0%,#173f30 35%,#0e2e25 100%);box-shadow:0 30px 80px #000c,0 0 0 5px #e2bb6324,inset 0 0 0 2px #f9e8a71c}
+.mode-card::before{content:"";position:absolute;inset:8px;border:1px solid #e2c58d35;border-radius:17px;pointer-events:none}
+.welcome-top{position:relative;z-index:1}
+.mode-card .welcome-top h2{font-size:clamp(27px,5.5vw,36px);letter-spacing:.3px;text-shadow:0 3px 1px #3b281a,0 6px 16px #0008}
+.welcome-kicker{color:#e8c98a;letter-spacing:1.8px}
+.mode-card .welcome-top p{font-size:13px;color:#f5e9cb}
+.welcome-table{height:0;position:relative;pointer-events:none}
+.welcome-table-glow{position:absolute;left:17%;right:17%;top:79px;height:24px;border-radius:50%;background:radial-gradient(ellipse,#dfb66b7a,#6c502725 55%,transparent 75%);filter:blur(5px)}
+.welcome-pawns{position:relative;margin:8px 0 17px;height:94px;gap:24px}
+.welcome-pawn{animation:welcomeBob 3.8s ease-in-out infinite;filter:drop-shadow(0 4px 3px #0008)}
+.wp-purple{animation-delay:-.9s}.wp-yellow{animation-delay:-1.8s}.wp-green{animation-delay:-2.7s}
+@keyframes welcomeBob{0%,100%{translate:0 0}50%{translate:0 -5px}}
+.welcome-decor{position:absolute;display:flex;flex-direction:column;gap:18px;color:#d9b86c8a;font-size:clamp(24px,4vw,48px);text-shadow:0 4px 14px #0009;pointer-events:none}
+.decor-left{left:clamp(14px,9vw,160px);top:22%;transform:rotate(-18deg)}
+.decor-right{right:clamp(14px,9vw,160px);bottom:19%;transform:rotate(17deg)}
+.welcome-decor span:nth-child(2){font-size:.68em;color:#b95351a3;transform:translateX(22px)}
+.welcome-sparkles{position:absolute;top:8%;color:#e7cb8c8c;font-size:21px;letter-spacing:20px;pointer-events:none}
+.welcome-identity{background:#081f19b3;border-color:#e6c17b70;box-shadow:inset 0 2px 14px #0003}
+.avatar-option{background:linear-gradient(140deg,#466f55,#234637);border-color:#91a587}
+.avatar-option.selected{background:linear-gradient(145deg,#9e7936,#695026);border-color:#ffe18e}
+.mode-card .mode-choice{transition:transform .18s,filter .18s,box-shadow .18s}
+.mode-card .mode-choice:not(:disabled):hover{filter:brightness(1.09);transform:translateY(-2px);box-shadow:0 5px 0 #8d602f}
+.welcome-mode-title{text-align:center;letter-spacing:1.7px;margin:8px 0 10px}
+.welcome-footer{text-align:center;margin-top:16px;color:#e8ce91;font-size:12px;letter-spacing:.7px}
+@media(max-width:620px){.welcome-decor{opacity:.2}.welcome-sparkles{display:none}.mode-screen::after{inset:6px}.welcome-pawns{height:80px;gap:17px;margin-bottom:12px}}
+@media(prefers-reduced-motion:reduce){.welcome-pawn{animation:none}.mode-card .mode-choice{transition:none}}
+
+.victory-screen[hidden]{display:none!important}
+.victory-screen{position:fixed;inset:0;z-index:20000;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at center,#172d35ec,#070c1bf5);padding:18px}
+.victory-fireworks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.victory-content{position:relative;z-index:1;text-align:center;width:min(560px,100%);padding:32px 20px;border:2px solid #f8d277;border-radius:24px;background:linear-gradient(160deg,#214737ed,#0d261eea);box-shadow:0 0 60px #e6b9515c,0 22px 65px #000b;animation:victory-arrive .7s cubic-bezier(.2,1.4,.4,1) both}
+.victory-crown{font-size:clamp(58px,15vw,96px);filter:drop-shadow(0 4px 12px #ffd74d80);animation:victory-bounce 1.5s ease-in-out infinite}
+.victory-title{font-family:Georgia,serif;font-size:clamp(28px,7.5vw,54px);line-height:1.12;color:#ffe19a;margin:15px 0;text-shadow:0 0 16px #f5a92e99,0 3px 3px #000}
+.victory-subtitle{font-size:clamp(15px,4vw,21px);color:#fff0c9;margin:10px 0 24px}
+.victory-buttons{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.victory-buttons button{background:linear-gradient(#ffe7a8,#dfab51);border:1px solid #fff0c5;padding:13px 18px}
+.victory-confetti{font-size:25px;letter-spacing:12px;animation:victory-bounce 2s ease-in-out infinite}
+@keyframes victory-arrive{from{opacity:0;transform:scale(.65) translateY(35px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes victory-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@media(prefers-reduced-motion:reduce){.victory-content,.victory-crown,.victory-confetti{animation:none!important}}
+
+.online-layer[hidden]{display:none!important}.online-layer{position:fixed;inset:0;z-index:15000;background:radial-gradient(circle at 50% 10%,#285740,#071c16);display:grid;place-items:center;padding:15px;overflow:auto;color:#f7e9c9}
+.online-panel{width:min(530px,100%);border:2px solid #e8c17a;border-radius:22px;background:linear-gradient(140deg,#204535,#10291f);padding:22px;box-shadow:0 20px 80px #000b}
+.online-panel h2{color:#ffdd91;margin:0 0 10px}.online-panel p{font-size:13px;line-height:1.5}.online-panel input,.online-panel select{box-sizing:border-box;width:100%;padding:12px;background:#fff3dc;border-radius:9px;border:1px solid #d9ae66;color:#1d2c20;font-size:16px}
+.online-panel label{display:block;margin:12px 0 6px;font-weight:700;font-size:13px}.online-panel button{padding:11px 15px;margin:7px 4px 7px 0;border:1px solid #ffdd99;border-radius:10px;background:#e9c681;color:#271e12;font-weight:750;cursor:pointer}.online-panel button:disabled{opacity:.45;cursor:not-allowed}.online-panel .secondary{background:#315345;color:#f8e6c4}
+.online-row{display:flex;gap:10px;flex-wrap:wrap}.online-row>*{flex:1}.online-code{font:800 36px ui-monospace,monospace;letter-spacing:5px;color:#ffe5a0;text-align:center;padding:10px;background:#091c16;border-radius:12px;user-select:all}
+.online-seat{display:flex;align-items:center;gap:12px;border:1px solid #c6a56a77;border-radius:12px;padding:10px;margin:8px 0;background:#071d165e}.online-seat .seat-avatar{font-size:27px}.online-seat small{display:block;color:#d8c7a5}.online-status{min-height:22px;color:#f4cf86}.online-note{font-size:12px;color:#e0cfa9}.online-panel [hidden]{display:none!important}
+</style></head><body><div id="modeScreen" class="mode-screen">
+<div class="welcome-decor decor-left" aria-hidden="true"><span>♠</span><span>♥</span><span>♦</span></div>
+<div class="welcome-decor decor-right" aria-hidden="true"><span>♣</span><span>♦</span><span>♠</span></div>
+<div class="welcome-sparkles" aria-hidden="true">✦　✧　✦　✧　✦</div>
+<div class="mode-card">
+<div class="welcome-top"><div class="welcome-kicker">✦ SAMEN SPELEN, SAMEN WINNEN ✦</div><h2>♛ Keezen Online</h2><p>Kies jouw pion, kies jouw avontuur!</p></div>
+<div class="welcome-table" aria-hidden="true"><span class="welcome-table-glow"></span></div><div class="welcome-pawns" aria-hidden="true"><span class="welcome-pawn wp-red"></span><span class="welcome-pawn wp-purple"></span><span class="welcome-pawn wp-yellow"></span><span class="welcome-pawn wp-green"></span></div>
+<div class="welcome-identity"><label for="playerName">Jouw spelersnaam</label><input id="playerName" maxlength="18" value="Speler" placeholder="Jouw naam">
+<label id="avatarTitle">Kies een plaatje bij je naam</label><div id="avatarPicker" class="avatar-picker" role="group" aria-labelledby="avatarTitle"></div></div>
+<div class="welcome-mode-title">♠ &nbsp; KIES JE SPELMODUS &nbsp; ♥</div><button id="playSolo" class="mode-choice">🏆 Iedereen voor zichzelf<small>Jij tegen drie bots · Geen teams · Wie als eerste vier pionnen binnen heeft, wint.</small></button><button id="playBots" class="mode-choice">🤝 In teams tegen bots<small>Jij (rood) en geel vormen een team tegen paars en groen.</small></button><button id="playLocal" class="mode-choice">👥 Samen op één telefoon<small>Vier spelers spelen om de beurt.</small></button><button id="playOnline" class="mode-choice">🌐 Online met vrienden <small>Maak een privékamer, deel de code en vul lege plaatsen met bots.</small></button><div class="welcome-footer">♛ &nbsp; Veel speelplezier! &nbsp; ♛</div></div></div><div class="wrap"><header><h1>♛ Keezen Online <small style="font:600 12px system-ui;background:#e6bc73;color:#34210c;padding:5px 9px;border-radius:20px;vertical-align:middle">BÈTA 8.0 · ONLINE WACHTRUIMTE</small></h1><p>Gelijkmatig verdeelde loopgaten · finishgaten uitgelijnd met 64 / 16 / 32 / 48 · juiste pijlrichting · 64 unieke loopgaten · 16 finishgaten · 4 wachthonken</p></header><div style="text-align:center;color:#f2dfb6;font-size:13px;margin:0 0 10px">🎮 Offline spelen blijft beschikbaar · Online wachtruimte met Firebase · Online speelbord volgt in volgende versie</div><div class="turn-above"><div class="top-controls"><button type="button" id="rulesBtn" aria-controls="rules" aria-expanded="false">ⓘ Spelregels</button><button type="button" id="reset">↻ Nieuw spel</button></div><div class="status" id="status">Spel wordt geladen…</div></div><div id="playerNameBar" class="player-name-bar" aria-label="Spelers en kleuren"></div><div class="board-perspective"><div class="board"><svg id="svg" viewBox="0 0 1000 1000" aria-label="Keezen speelbord"><defs><radialGradient id="pot"><stop stop-color="#571d1a"/><stop offset="1" stop-color="#1d090a"/></radialGradient><radialGradient id="marble"><stop stop-color="#fff" stop-opacity=".75"/><stop offset=".3" stop-color="#fff" stop-opacity=".12"/><stop offset="1" stop-color="#000" stop-opacity=".3"/></radialGradient><linearGradient id="pawn3d-red" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffb4a6"/><stop offset=".42" stop-color="#d73736"/><stop offset="1" stop-color="#68151d"/></linearGradient>
+<linearGradient id="pawn3d-purple" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#e4baff"/><stop offset=".42" stop-color="#8e48bd"/><stop offset="1" stop-color="#39145e"/></linearGradient>
+<linearGradient id="pawn3d-yellow" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff4b1"/><stop offset=".42" stop-color="#e8b834"/><stop offset="1" stop-color="#86550b"/></linearGradient>
+<linearGradient id="pawn3d-green" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b6f7c0"/><stop offset=".42" stop-color="#2f9c5e"/><stop offset="1" stop-color="#0c492b"/></linearGradient>
+<linearGradient id="pawn-gloss-red" x1="0%" y1="0%" x2="100%" y2="20%"><stop offset="0%" stop-color="#ffbcb0"/><stop offset="22%" stop-color="#e73f46"/><stop offset="55%" stop-color="#a51d2b"/><stop offset="85%" stop-color="#4d0c17"/><stop offset="100%" stop-color="#a51d2b"/></linearGradient><linearGradient id="pawn-gloss-purple" x1="0%" y1="0%" x2="100%" y2="20%"><stop offset="0%" stop-color="#e7c4ff"/><stop offset="22%" stop-color="#a86de0"/><stop offset="55%" stop-color="#6c2da9"/><stop offset="85%" stop-color="#300e50"/><stop offset="100%" stop-color="#6c2da9"/></linearGradient><linearGradient id="pawn-gloss-yellow" x1="0%" y1="0%" x2="100%" y2="20%"><stop offset="0%" stop-color="#fff4ba"/><stop offset="22%" stop-color="#f5d557"/><stop offset="55%" stop-color="#c68a14"/><stop offset="85%" stop-color="#704109"/><stop offset="100%" stop-color="#c68a14"/></linearGradient><linearGradient id="pawn-gloss-green" x1="0%" y1="0%" x2="100%" y2="20%"><stop offset="0%" stop-color="#d4ffc1"/><stop offset="22%" stop-color="#6ed64b"/><stop offset="55%" stop-color="#318e30"/><stop offset="85%" stop-color="#12491c"/><stop offset="100%" stop-color="#318e30"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-opacity=".45"/></filter></defs><g id="boardDecor"></g><g id="routes"></g><g id="finishes"></g><g id="homes"></g><g class="pot" id="discard" role="button" tabindex="0"><circle cx="500" cy="500" r="144" fill="#8d4b25" stroke="#f3d19b" stroke-width="10" filter="url(#shadow)"/><circle cx="500" cy="500" r="128" fill="url(#pot)" stroke="#3e2015" stroke-width="9"/><g id="cards"></g><text x="500" y="427" fill="#f4d9a4" font-family="Georgia" font-size="26" text-anchor="middle" font-weight="bold">GESPEELDE KAARTEN</text><text x="500" y="595" fill="#e2bb82" font-size="15" text-anchor="middle">Laatste gespeelde kaart</text></g><g id="labels"></g></svg><div id="dealBoard" class="deal-board" hidden aria-live="polite" aria-label="Kaarten worden geschud en gedeeld"><div id="dealLabel" class="deal-board-label">🃏 Kaarten schudden…</div><div id="dealDeck" class="deal-deck"></div></div><div id="boardMessage" class="board-message" role="status" aria-live="polite" hidden></div><button type="button" id="noMovesWarning" class="no-moves-warning" aria-label="Geen geldige zetten meer. Tik hier om al je resterende kaarten weg te leggen" hidden>🃏 Geen geldige zetten meer!<span class="no-moves-subtitle">Tik hier om je kaarten weg te leggen</span><span class="no-moves-cta">🃏 Kaarten wegleggen</span></button></div></div><div class="gamepanel"><div id="hand" class="hand"></div><div id="sevenOverlay" class="seven-overlay" hidden><div class="seven-dialog" role="dialog" aria-modal="true" aria-labelledby="sevenDialogTitle"><div id="sevenChoices" class="seven-options actions"></div></div></div><div class="help" id="help">Kies een kaart en tik op een pion om te spelen.</div><div class="actions"><button id="discardBtn" hidden aria-hidden="true" tabindex="-1">Kaarten wegleggen</button><button id="cancelBtn" hidden>Splitsing annuleren</button><button id="next" hidden>Volgende speler</button></div><div id="rules" hidden class="rules">Keezenregels (4 spelers): Rood + Geel tegen Paars + Groen. Per beurt één kaart. Delen: 5, daarna 4, daarna 4 kaarten; dan opnieuw schudden. Aas: opzetten of 1 vooruit. Heer: opzetten. Vrouw: 12 vooruit. Boer: je mag ook vanaf je eigen startvak ruilen met een pion van een andere speler, zolang die andere pion niet op zijn eigen beschermde startvak of in de finish staat. 4: vier achteruit. 7: kies de kaart en tik op een pion. Kies dan hoeveel stappen (1 t/m 7). Bij 7 loopt die pion alleen; bij 1 t/m 6 kies je daarna een tweede pion voor de resterende stappen. Als je eerste pion met de 7 de finishstraat bereikt, mag je de resterende stappen ook met een pion van je teamgenoot lopen. Overige kaarten: eigen waarde vooruit. Een pion op zijn eigen startvak is beschermd. Met een 4 mag je vanaf je startvak vier stappen achteruit. Je moet precies in de finish uitkomen en mag daar niet over pionnen heen. Als je geen enkele kaart kunt spelen, leg je de rest af. Wanneer al jouw pionnen binnen zijn, speel je verder met de pionnen van je teamgenoot. Dit is een lokale test op één toestel.</div></div><p class="hint">De gekleurde finishgaten staan op één lijn naar het midden vanaf rood 64, paars 16, geel 32 en groen 48. Er zijn geen verbindingslijnen. De vier startgaten zijn gemarkeerd met een gekleurde rand. De finishstraten en wachthonken staan los van de looproute. Vriendentest bèta 3.9: speel met vier kleuren om de beurt op één apparaat. Geef fouten of onduidelijkheden door aan degene die je dit bestand stuurde. De goedgekeurde bordposities zijn ongewijzigd.</p></div><div id="victoryScreen" class="victory-screen" hidden role="dialog" aria-modal="true" aria-labelledby="victoryTitle"><canvas id="victoryCanvas" class="victory-fireworks" aria-hidden="true"></canvas><div class="victory-content"><div class="victory-crown" id="victoryIcon">🏆</div><div class="victory-confetti" aria-hidden="true">✨ 🎉 ✨</div><h2 id="victoryTitle" class="victory-title">YESSS!</h2><p id="victorySubtitle" class="victory-subtitle"></p><div class="victory-buttons"><button type="button" id="victoryAgain">🎲 Nog een potje</button><button type="button" id="victoryClose">Bekijk het bord</button></div></div></div><section id="onlineLayer" class="online-layer" hidden><div class="online-panel"><h2>🌐 Keezen Online</h2><p>Speel samen met vrienden. Geen account nodig: kies je naam en avatar op het startscherm.</p><div id="onlineSetup"><label for="onlineCodeInput">Kamercode van je vriend (optioneel)</label><input id="onlineCodeInput" maxlength="6" placeholder="Bijvoorbeeld KZ8F3Q" autocapitalize="characters" autocomplete="off"><div class="online-row"><button id="onlineCreate">👑 Nieuwe kamer maken</button><button id="onlineJoin">🚪 Deelnemen met code</button></div></div><div id="onlineRoom" hidden><div class="online-note">Deel deze code met je vrienden</div><div class="online-code" id="onlineRoomCode">------</div><button id="onlineCopy">📋 Code kopiëren</button><div id="onlineSeats"></div><div id="onlineHostOptions" hidden><label for="onlineMode">Spelregels</label><select id="onlineMode"><option value="teams">🤝 Teams (rood + geel tegen paars + groen)</option><option value="solo">🏆 Iedereen voor zichzelf</option></select><button id="onlineStart">🎲 Start met bots op lege plekken</button></div><p class="online-note" id="onlineRoomNote">Wachten op spelers…</p></div><p class="online-status" id="onlineStatus" role="status" aria-live="polite"></p><button class="secondary" id="onlineBack">← Terug naar startscherm</button><p class="online-note">Bèta 8.0: de online wachtruimte werkt live. Het gezamenlijke speelbord en geheime kaarten zijn nog in ontwikkeling; starten opent nog geen online partij.</p></div></section><script>
+const svgNS='http://www.w3.org/2000/svg',g=id=>document.getElementById(id);
+function el(t,a,parent){let n=document.createElementNS(svgNS,t);for(let [k,v] of Object.entries(a||{}))n.setAttribute(k,v);parent.append(n);return n}
+// Identieke, goedgekeurde route uit de back-up: NIET WIJZIGEN.
+const base=[[108,820],[133,766],[157,713],[180,665],[202,615],[226,570],[250,525],[232,480],[208,432],[182,383],[157,332],[134,281],[109,229],[88,178],[119,132],[145,90]];
+const points=[];for(let q=0;q<4;q++){for(let [x,y] of base){let X=x,Y=y;for(let k=0;k<q;k++){let nx=1000-Y,ny=X;X=nx;Y=ny}points.push([X,Y])}}
+const original=points.map(p=>p.slice()),anchor=63,ordered=Array.from({length:64},(_,k)=>original[(anchor+k)%64]);
+const segmentLengths=ordered.map((p,k)=>Math.hypot(ordered[(k+1)%64][0]-p[0],ordered[(k+1)%64][1]-p[1]));
+const circumference=segmentLengths.reduce((a,b)=>a+b,0),step=circumference/64,evenlySpaced=[];
+for(let k=0;k<64;k++){let remaining=k*step,seg=0;while(seg<63&&remaining>segmentLengths[seg])remaining-=segmentLengths[seg++];const a=ordered[seg],b=ordered[(seg+1)%64],t=remaining/segmentLengths[seg];evenlySpaced.push([a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])])}
+for(let k=0;k<64;k++)points[(anchor+k)%64]=evenlySpaced[k];
+// Gebruik meer van het bordoppervlak zonder de routevolgorde te veranderen.
+const fieldZoom=1.065;
+points.forEach(p=>{p[0]=500+(p[0]-500)*fieldZoom;p[1]=500+(p[1]-500)*fieldZoom});
+const starts=[0,16,32,48],colors=['#c82e36','#6b35c4','#e4b91b','#53bb37'],names=['Rood','Paars','Geel','Groen'];
+const nummer=i=>(i+1)%64+1;
+const finishEntryNumbers=[64,16,32,48],finishGap=48,firstFinishDistance=62,finish=[];
+finishEntryNumbers.forEach((n,k)=>{const [sx,sy]=points[(n-2+64)%64],dx=500-sx,dy=500-sy,len=Math.hypot(dx,dy),ux=dx/len,uy=dy/len;finish.push(Array.from({length:4},(_,i)=>[sx+ux*(firstFinishDistance+i*finishGap),sy+uy*(firstFinishDistance+i*finishGap)]))});
+const homes=[[[80,590],[80,642],[80,694],[80,746]],[[300,76],[352,76],[404,76],[456,76]],[[920,295],[920,347],[920,399],[920,451]],[[542,918],[594,918],[646,918],[698,918]]];
+homes.forEach(row=>row.forEach(p=>{p[0]=500+(p[0]-500)*1.045;p[1]=500+(p[1]-500)*1.045}));
+// De hoekornamenten zijn bewust weggelaten: de nieuwe rechte, symmetrische lijst is CSS.
+// Render exact hetzelfde bord.
+points.forEach(([x,y],i)=>{el('circle',{cx:x,cy:y,r:24,class:'hole'+(starts.includes(i)?' start':''),stroke:starts.includes(i)?colors[starts.indexOf(i)]:'#efcc86'},g('routes'));el('text',{x,y:y+1,class:'num'},g('routes')).textContent=nummer(i)});
+finish.forEach((arr,k)=>arr.forEach(([x,y],i)=>{el('circle',{cx:x,cy:y,r:21,fill:colors[k],class:'finish'},g('finishes'));el('circle',{cx:x-5,cy:y-6,r:7,fill:'#fff',opacity:'.32'},g('finishes'))}));
+homes.forEach((arr,k)=>arr.forEach(([x,y])=>{el('circle',{cx:x,cy:y,r:24,fill:colors[k],class:'home'},g('homes'));el('circle',{cx:x,cy:y,r:24,fill:'url(#marble)'},g('homes'))}));
+[7,23,39,55].forEach(i=>{const a=points[i],b=points[(i+1)%64],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,vx=b[0]-a[0],vy=b[1]-a[1],len=Math.hypot(vx,vy),inward=Math.hypot(500-mx,500-my),x=mx+(500-mx)/inward*55,y=my+(500-my)/inward*55,angle=Math.atan2(vy,vx)*180/Math.PI,group=el('g',{transform:`translate(${x} ${y}) rotate(${angle})`},g('labels'));el('path',{d:'M -34 -10 L 7 -10 L 7 -23 L 37 0 L 7 23 L 7 10 L -34 10 Z',fill:'#9a4c1e',stroke:'#4b260e','stroke-width':4,filter:'url(#shadow)'},group);el('path',{d:'M -27 -5 L 15 -5 L 15 -11 L 27 0 L 15 11 L 15 5 L -27 5 Z',fill:'#d88942',opacity:'.9'},group)});
+const pawnStarts=[63,15,31,47];
+const pawnLayer=el('g',{id:'pawns'},g('svg'));
+
+const partners=[2,3,0,1];
+const cardRanks=['A','2','3','4','5','6','7','8','9','10','B','V','H'];
+let pawns,turn,hands,chosen,deck,round,discarded,winner,message,split,swapFrom,splitMode=false,starter=0,lastPlayed=null,animating=false,dealing=false,sevenPending=null;let teamMode=true,gameMode="local",playerName="Speler",botBusy=false,botTimer=null,gameStarted=false,revealedBotCard=null,botThrownIndex=null;const avatarChoices=["👑","🦊","🐻","🐼","🐸","🦁","🐱","🐧"];let chosenAvatar=0;let playerAvatars=["👑","🦊","🐻","🐼"];const botNamePool=["Bram","Sophie","Daan","Emma","Lars","Noor","Milan","Fleur","Jesse","Tess","Finn","Lotte","Sem","Eva","Luuk","Nina","Max","Sara","Thijs","Roos"];
+
+// De kaarten worden op het bord geschud, naar de spelers gedeeld en
+// verschijnen bij de actieve speler één voor één in de hand.
+async function animateDealing(){
+ const board=g('dealBoard'),deckEl=g('dealDeck'),label=g('dealLabel'),hand=g('hand');
+ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const n=round%3===0?5:4;
+ animating=true;
+ dealing=true;
+ board.hidden=false;
+ document.body.classList.add('dealing');
+ hand.querySelectorAll('.playingcard').forEach(c=>c.classList.remove('dealt-visible'));
+ label.textContent='🃏 Kaarten schudden…';
+ const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+ try{
+  if(!reduced){
+   for(let i=0;i<4;i++){
+    const motion=deckEl.animate([
+     {transform:'translate(-50%,-50%) rotate(0deg)'},
+     {transform:`translate(calc(-50% + ${i%2?18:-18}px),-50%) rotate(${i%2?-16:16}deg)`},
+     {transform:'translate(-50%,-50%) rotate(0deg)'}
+    ],{duration:190,easing:'ease-in-out'});
+    await motion.finished.catch(()=>{});
+   }
+  }
+  label.textContent='✨ Kaarten delen';
+  for(let i=0;i<n;i++)for(let seat=0;seat<4;seat++){
+   const source=deckEl.getBoundingClientRect();
+   const br=g('svg').getBoundingClientRect();
+   const card=seat===turn?hand.querySelectorAll('.playingcard')[i]:null;
+   const target=card?.getBoundingClientRect();
+   // Andere spelers krijgen hun kaarten bij hun eigen bordzijde.
+   const destinations=[
+    {x:br.left+br.width*.5,y:br.top+br.height*.85},
+    {x:br.left+br.width*.85,y:br.top+br.height*.5},
+    {x:br.left+br.width*.5,y:br.top+br.height*.15},
+    {x:br.left+br.width*.15,y:br.top+br.height*.5}
+   ];
+   const dest=target?{x:target.left+target.width/2,y:target.top+target.height/2}:destinations[seat];
+   if(!reduced){
+    const flying=deckEl.cloneNode(false);
+    flying.removeAttribute('id');flying.className='deal-flying';
+    board.appendChild(flying);
+    const dx=dest.x-source.left-source.width/2;
+    const dy=dest.y-source.top-source.height/2;
+    try{
+     const motion=flying.animate([
+      {transform:'translate(-50%,-50%) rotate(0deg) scale(1)',opacity:1},
+      {transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) rotate(${seat%2?12:-12}deg) scale(.8)`,opacity:1,offset:.92},
+      {transform:`translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px)) rotate(0deg) scale(.8)`,opacity:0}
+     ],{duration:165,easing:'ease-out'});
+     await motion.finished.catch(()=>{});
+    }finally{flying.remove()}
+   }
+   if(card)card.classList.add('dealt-visible');
+  }
+  if(!reduced)await pause(220);
+ }finally{
+  board.hidden=true;
+  document.body.classList.remove('dealing');
+  animating=false;
+  dealing=false;
+  update();
+ }
+}
+function newDeck(){let d=[];for(let suit of ['♠','♥','♣','♦'])for(let r of cardRanks)d.push({r,s:suit});for(let i=d.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]]}return d}
+function deal(){const n=round%3===0?5:4;if(round%3===0)deck=newDeck();hands=Array.from({length:4},()=>Array.from({length:n},()=>deck.pop()));chosen=null;split=null;swapFrom=null;splitMode=false;sevenPending=null;message='Nieuwe deelronde: '+n+' kaarten per speler.'}
+function init(){if(animating)return;closeVictory();gameStarted=true;clearTimeout(botTimer);botBusy=false;botThrownIndex=null;pawns=Array.from({length:4},()=>Array.from({length:4},()=>({state:'home',progress:0})));turn=0;starter=0,lastPlayed=null;round=0;discarded=0;winner=null;lastPlayed=null;deal();message='Rood begint. Kies een kaart.';dealing=true;update();void animateDealing()}
+function loc(k,p){if(p.state==='home')return null;if(p.state==='finish')return 'f'+k+':'+(p.progress-64);return 't'+(((pawnStarts[k]+p.progress)%64+64)%64)}
+function isProtected(k,p){return p.state==='track'&&p.progress===0}
+function activeOwners(){return teamMode&&pawns[turn].every(p=>p.state==='finish')?[partners[turn]]:[turn]}
+// Bij teruglopen voorbij de eigen finishingang moet een pion bij de
+// eerstvolgende voorwaartse passage weer zijn eigen finishstraat in.
+function movePath(p,steps){
+ if(p.state==='home'||(p.state==='finish'&&steps<0))return null;
+ let state=p.state,progress=p.progress,path=[];
+ for(let i=0;i<Math.abs(steps);i++){
+  const dir=Math.sign(steps);
+  if(dir>0){
+   if(state==='track'&&(progress===63||progress===-1)){
+    state='finish';progress=64;
+   }else progress++;
+  }else progress--;
+  if(progress < -63||progress>67)return null;
+  path.push({state,progress});
+ }
+ return path;
+}
+function destination(k,p,steps){const path=movePath(p,steps);return path&&path.length?path[path.length-1]:null}
+function validMove(k,id,steps){
+ const p=pawns[k][id],path=movePath(p,steps);
+ if(!path||!path.length)return null;
+ const d=path[path.length-1],target=loc(k,d);
+ for(const pos of path){
+  if(pos.state==='finish'){
+   // Geen pionnen passeren in de finishstraat.
+   for(let j=0;j<4;j++)if(j!==id&&pawns[k][j].state==='finish'&&pawns[k][j].progress===pos.progress)return null;
+  }else{
+   // Een beschermd starthonk mag niet gepasseerd of betreden worden.
+   const square=((pawnStarts[k]+pos.progress)%64+64)%64;
+   for(let owner=0;owner<4;owner++)for(let j=0;j<4;j++){
+    if(owner===k&&j===id)continue;
+    const op=pawns[owner][j];
+    if(isProtected(owner,op)&&pawnStarts[owner]===square)return null;
+   }
+  }
+ }
+ for(let j=0;j<4;j++)if(j!==id&&loc(k,pawns[k][j])===target)return null;
+ return d;
+}
+function canPlace(k){if(!pawns[k].some(p=>p.state==='home'))return false;for(let owner=0;owner<4;owner++)for(let p of pawns[owner])if(loc(owner,p)==='t'+pawnStarts[k]&&isProtected(owner,p))return false;return !pawns[k].some(p=>p.state==='track'&&p.progress===0)}
+function canSwap(k,id,other,j){if(k===other)return false;let a=pawns[k][id],b=pawns[other][j];return a.state==='track'&&b.state==='track'&&!isProtected(other,b)}
+function sevenSecondOwners(k,id,n){
+ // Als de eerste pion met de 7 de finishstraat bereikt, mag het restant
+ // ook met een pion van de teamgenoot worden gelopen.
+ const owners=activeOwners().slice();
+ const dest=validMove(k,id,n);
+ if(teamMode&&dest&&dest.state==='finish'&&!owners.includes(partners[turn]))owners.push(partners[turn]);
+ return owners;
+}
+function movesForCard(card){let list=[];for(let k of activeOwners())for(let id=0;id<4;id++){
+ let p=pawns[k][id];
+ if((card.r==='A'||card.r==='H')&&p.state==='home'&&canPlace(k))list.push({kind:'place',k,id});
+ if(card.r==='B'){for(let other=0;other<4;other++)if(other!==k)for(let j=0;j<4;j++)if(canSwap(k,id,other,j))list.push({kind:'swap',k,id,other,j});continue}
+ if(card.r==='H'||p.state==='home')continue;
+ let steps=card.r==='A'?1:card.r==='V'?12:card.r==='4'?-4:card.r==='7'?7:Number(card.r);
+ if(validMove(k,id,steps))list.push({kind:'move',k,id,steps});
+ if(card.r==='7')for(let n=1;n<=6;n++)if(validMove(k,id,n))for(let k2 of sevenSecondOwners(k,id,n))for(let j=0;j<4;j++)if(!(k===k2&&id===j)&&validMove(k2,j,7-n))list.push({kind:'split',k,id,steps:n,k2,j,steps2:7-n});
+}return list}
+
+function anyMove(){return hands[turn].some(c=>c&&movesForCard(c).length)}
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function animatePlacePawn(k,id){
+ // Laat de echte 3D-pion vanuit zijn eigen honk naar het startvak glijden.
+ const original=pawnLayer.children[k*4+id];
+ const start=homes[k][id],target=points[pawnStarts[k]];
+ if(!original||!start||!target){pawns[k][id]={state:'track',progress:0};update();return;}
+ const ghost=original.cloneNode(true);
+ ghost.setAttribute('pointer-events','none');
+ ghost.style.pointerEvents='none';
+ pawnLayer.appendChild(ghost);
+ original.style.opacity='0';
+ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ message=names[k]+' zet een pion vanuit het honk op het speelveld.';
+ // Update bewust niet tijdens de beweging: anders wordt de pion opnieuw getekend.
+ if(!reduced){
+  await new Promise(resolve=>{
+   const duration=1050,begin=performance.now();
+   function frame(now){
+    const t=Math.min(1,(now-begin)/duration);
+    const eased=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    const dx=(target[0]-start[0])*eased,dy=(target[1]-start[1])*eased;
+    const lift=Math.sin(Math.PI*t)*35;
+    ghost.setAttribute('transform',`translate(${dx} ${dy-lift})`);
+    if(t<1)requestAnimationFrame(frame);else resolve();
+   }
+   requestAnimationFrame(frame);
+  });
+  await pause(180);
+ }
+ ghost.remove();
+ pawns[k][id]={state:'track',progress:0};
+ update();
+}
+async function animateSwapPawns(k,id,other,j){
+ // Beide volledige 3D-pionnen bewegen tegelijk naar elkaars plaats.
+ const a=pawns[k][id],b=pawns[other][j];
+ const aSquare=loc(k,a),bSquare=loc(other,b);
+ const from=points[Number(aSquare.slice(1))],to=points[Number(bSquare.slice(1))];
+ const originalA=pawnLayer.children[k*4+id],originalB=pawnLayer.children[other*4+j];
+ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ message='Boer: de pionnen wisselen van plaats…';
+ if(originalA&&originalB&&from&&to&&!reduced){
+  const ghostA=originalA.cloneNode(true),ghostB=originalB.cloneNode(true);
+  for(const ghost of [ghostA,ghostB]){
+   ghost.setAttribute('pointer-events','none');ghost.style.pointerEvents='none';
+   pawnLayer.appendChild(ghost);
+  }
+  originalA.style.opacity='0';originalB.style.opacity='0';
+  try{
+   await new Promise(resolve=>{
+    const start=performance.now(),duration=1700;
+    function frame(now){
+     const t=Math.min(1,(now-start)/duration);
+     const eased=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+     const dx=(to[0]-from[0])*eased,dy=(to[1]-from[1])*eased;
+     const lift=Math.sin(Math.PI*t)*48;
+     // Tegenovergestelde bochten zorgen dat de pionnen zichtbaar langs elkaar schuiven.
+     const side=Math.sin(Math.PI*t)*24;
+     const distance=Math.hypot(to[0]-from[0],to[1]-from[1])||1;
+     const nx=-(to[1]-from[1])/distance,ny=(to[0]-from[0])/distance;
+     ghostA.setAttribute('transform',`translate(${dx+nx*side} ${dy+ny*side-lift})`);
+     ghostB.setAttribute('transform',`translate(${-dx-nx*side} ${-dy-ny*side-lift})`);
+     if(t<1)requestAnimationFrame(frame);else resolve();
+    }
+    requestAnimationFrame(frame);
+   });
+   await pause(240);
+  }finally{ghostA.remove();ghostB.remove();originalA.style.opacity='';originalB.style.opacity='';}
+ }
+ a.progress=(Number(bSquare.slice(1))-pawnStarts[k]+64)%64;
+ b.progress=(Number(aSquare.slice(1))-pawnStarts[other]+64)%64;
+ message='Boer: pionnen geruild.';
+ update();
+}
+async function animatePawn(k,id,steps){
+ const path=movePath(pawns[k][id],steps);
+ if(!path)return;
+ for(const pos of path){
+  pawns[k][id]={...pos};
+  update();
+  await pause(210);
+ }
+ await capture(k,id);
+}
+function clearSelection(){chosen=null;split=null;swapFrom=null;splitMode=false;sevenPending=null}
+async function capture(k,id){
+ const square=loc(k,pawns[k][id]);
+ if(!square||!square.startsWith('t'))return;
+ for(let other=0;other<4;other++)for(let j=0;j<4;j++){
+  if((other===k&&j===id)||loc(other,pawns[other][j])!==square)continue;
+  // Gebruik de echte 3D-pion als bewegend beeld, niet een nieuw rond bolletje.
+  // Verplaats de geslagen pion pas naar het honk nadat de hele vlucht is voltooid.
+  const original=pawnLayer.children[other*4+j];
+  const [sx,sy]=points[Number(square.slice(1))], [hx,hy]=homes[other][j];
+  const ghost=original?.cloneNode(true);
+  if(ghost){
+   ghost.setAttribute('pointer-events','none');
+   ghost.style.pointerEvents='none';
+   original.style.opacity='0';
+   pawnLayer.appendChild(ghost);
+  }
+  message='💥 '+names[other]+' wordt geslagen en vliegt terug naar het honk!';
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  try{
+   if(ghost&&!reduced){
+    await pause(260);
+    await new Promise(resolve=>{
+     const start=performance.now(),duration=1450;
+     function frame(now){
+      const t=Math.min(1,(now-start)/duration);
+      const eased=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+      const dx=(hx-sx)*eased,dy=(hy-sy)*eased;
+      const lift=Math.sin(Math.PI*t)*56;
+      ghost.setAttribute('transform',`translate(${dx} ${dy-lift})`);
+      if(t<1)requestAnimationFrame(frame);else resolve();
+     }
+     requestAnimationFrame(frame);
+    });
+    await pause(160);
+   }
+  }finally{
+   ghost?.remove();
+   pawns[other][j]={state:'home',progress:0};
+   update();
+  }
+ }
+}
+async function flyPlayedCard(){
+ const botThrow=gameMode==='bots'&&turn!==0;
+ const source=botThrow?null:g('hand').querySelector('.playingcard.active');
+ const target=g('discard');
+ if((!source&&!botThrow)||!target)return;
+ const start=botThrow?cardOriginForPlayer(turn):source.getBoundingClientRect();
+ const end=target.getBoundingClientRect();
+ if(!start.width||!end.width)return;
+ const flying=botThrow?makeFlyingBotCard(hands[turn][chosen]):source.cloneNode(true);
+ flying.classList.remove('active','unplayable');
+ flying.classList.add('card-flight');
+ flying.disabled=true;
+ flying.style.cssText+=`;left:${start.left}px;top:${start.top}px;width:${start.width}px;height:${start.height}px;opacity:1;`;
+ document.body.appendChild(flying);
+ const x=end.left+end.width/2-start.left-start.width/2;
+ const y=end.top+end.height/2-start.top-start.height/2;
+ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ try{
+  if(!reduced&&flying.animate){
+   const motion=flying.animate([
+    {transform:'translate(0px,0px) scale(1) rotate(0deg)',opacity:1,offset:0},
+    {transform:`translate(${x*.52}px,${y*.52-35}px) scale(.88) rotate(-7deg)`,opacity:1,offset:.55},
+    {transform:`translate(${x}px,${y}px) scale(.48) rotate(-12deg)`,opacity:1,offset:.94},
+    {transform:`translate(${x}px,${y}px) scale(.48) rotate(-12deg)`,opacity:0,offset:1}
+   ],{duration:700,easing:'ease-in-out',fill:'forwards'});
+   await motion.finished.catch(()=>{});
+  }
+ }finally{flying.remove()}
+}
+async function throwCardFirst(){
+ animating=true;
+ try{await flyPlayedCard();lastPlayed={...hands[turn][chosen],by:turn};update()}finally{animating=false}
+}
+
+let victoryFrame=0,victoryParticles=[],victoryUntil=0,victoryLastBurst=0;
+function closeVictory(){
+ cancelAnimationFrame(victoryFrame);victoryFrame=0;victoryParticles=[];
+ g('victoryScreen').hidden=true;
+}
+function launchVictoryFireworks(){
+ const canvas=g('victoryCanvas'),ctx=canvas.getContext('2d');
+ if(!ctx)return;
+ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const ratio=Math.min(2,window.devicePixelRatio||1);
+ const w=window.innerWidth,h=window.innerHeight;
+ canvas.width=Math.round(w*ratio);canvas.height=Math.round(h*ratio);
+ ctx.setTransform(ratio,0,0,ratio,0,0);
+ victoryParticles=[];victoryLastBurst=0;victoryUntil=performance.now()+14000;
+ const palette=['#ffd34f','#fff3b3','#ff678c','#7de6ff','#b19bff','#76ffb0','#ffad4e'];
+ function burst(x,y){
+  const count=65+Math.floor(Math.random()*35);
+  for(let i=0;i<count;i++){
+   const angle=Math.random()*Math.PI*2,velocity=1.7+Math.random()*5.4;
+   victoryParticles.push({x,y,vx:Math.cos(angle)*velocity,vy:Math.sin(angle)*velocity,life:1,decay:.008+Math.random()*.012,color:palette[Math.floor(Math.random()*palette.length)],radius:1.6+Math.random()*2.6});
+  }
+ }
+ burst(w*.23,h*.25);burst(w*.78,h*.32);burst(w*.48,h*.15);
+ if(reduced){
+  ctx.fillStyle='#ffd34f';
+  for(const p of victoryParticles){ctx.beginPath();ctx.arc(p.x+p.vx*12,p.y+p.vy*12,2.5,0,Math.PI*2);ctx.fill()}
+  return;
+ }
+ let previous=performance.now();
+ function draw(now){
+  if(g('victoryScreen').hidden)return;
+  const dt=Math.min(2.5,(now-previous)/16.67);previous=now;
+  ctx.clearRect(0,0,w,h);
+  if(now-victoryLastBurst>430&&now<victoryUntil){
+   victoryLastBurst=now;
+   burst(w*(.12+Math.random()*.76),h*(.09+Math.random()*.52));
+  }
+  for(let i=victoryParticles.length-1;i>=0;i--){
+   const p=victoryParticles[i];
+   p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=.075*dt;p.vx*=Math.pow(.99,dt);
+   p.life-=p.decay*dt;
+   if(p.life<=0){victoryParticles.splice(i,1);continue}
+   ctx.globalAlpha=Math.max(0,p.life);ctx.fillStyle=p.color;
+   ctx.beginPath();ctx.arc(p.x,p.y,p.radius*Math.max(.25,p.life),0,Math.PI*2);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+  if(now<victoryUntil||victoryParticles.length)victoryFrame=requestAnimationFrame(draw);
+ }
+ victoryFrame=requestAnimationFrame(draw);
+}
+function showVictory(winningPlayers){
+ closeVictory();
+ const isHumanWinner=winningPlayers.includes(0);
+ const humanTeamWin=teamMode&&isHumanWinner;
+ const soloHumanWin=!teamMode&&isHumanWinner;
+ g('victoryIcon').textContent=isHumanWinner?'🏆':'🎖️';
+ g('victoryTitle').textContent=soloHumanWin?'YESSS! Je hebt iedereen verslagen!':humanTeamWin?'YEAHH! Jullie waren beter dan de rest!':teamMode?'Het andere team heeft gewonnen!':names[winningPlayers[0]]+' heeft gewonnen!';
+ g('victorySubtitle').textContent=soloHumanWin?'Alle vier jouw pionnen zijn binnen. Jij bent de Keezen-kampioen!':humanTeamWin?'Wat een teamwork! Jullie hebben samen alle pionnen binnengebracht!':teamMode?'Volgende keer pakken jullie de winst!':'Volgende keer ben jij de kampioen!';
+ g('victoryScreen').hidden=false;
+ launchVictoryFireworks();
+}
+async function commit(cardAlreadyThrown=false){
+ if(chosen===null||!hands[turn][chosen])return;
+ if(!cardAlreadyThrown)await throwCardFirst();
+ lastPlayed={...hands[turn][chosen],by:turn};hands[turn][chosen]=null;botThrownIndex=null;discarded++;clearSelection();
+ if(teamMode){
+  const team=turn===0||turn===2?[0,2]:[1,3];
+  if(team.every(k=>pawns[k].every(p=>p.state==='finish'))){winner=team;message='Team '+names[team[0]]+' + '+names[team[1]]+' wint!';update();showVictory(team);return}
+ }else{
+  const soloWinner=pawns.findIndex(group=>group.every(p=>p.state==='finish'));
+  if(soloWinner!==-1){winner=[soloWinner];message=names[soloWinner]+' wint! Alle vier de pionnen zijn binnen.';update();showVictory([soloWinner]);return}
+ }
+ advance();
+}
+function advance(){let old=turn;let roundChanged=false;let tries=0;do{turn=(turn+1)%4;tries++}while(tries<4&&hands[turn].every(c=>!c));if(hands.every(h=>h.every(c=>!c))){round++;roundChanged=true;deal();turn=(starter+1)%4;starter=turn}message+=(message?' ':'')+'Aan de beurt: '+names[turn]+'.';if(roundChanged)dealing=true;update();if(roundChanged)void animateDealing()}
+async function perform(k,id){if(animating||winner||chosen===null)return;sevenPending=null;let card=hands[turn][chosen];if(!card)return;let options=movesForCard(card);if(!options.length){message='⛔ Deze kaart kun je niet spelen. Kies een andere kaart.';update();return}
+if(card.r==='B'){if(!swapFrom){if(!activeOwners().includes(k)||!options.some(m=>m.k===k&&m.id===id)){message='Kies eerst een eigen pion die geruild mag worden.';update();return}swapFrom={k,id};message='Tik nu op een pion van een andere speler om te ruilen.';update();return}let opt=options.find(m=>m.k===swapFrom.k&&m.id===swapFrom.id&&m.other===k&&m.j===id);if(!opt){message='Deze ruil is niet toegestaan.';update();return}await throwCardFirst();animating=true;try{await animateSwapPawns(opt.k,opt.id,k,id)}finally{animating=false}await commit(true);return}
+if(!activeOwners().includes(k)&&!(teamMode&&split&&card.r==='7'&&k===partners[turn])){message='Kies een pion van jezelf of, als je klaar bent, van je teamgenoot.';update();return}
+if(split){let opt=options.find(m=>m.kind==='split'&&m.k===split.k&&m.id===split.id&&m.steps===split.steps&&m.k2===k&&m.j===id);if(!opt){message='Kies een andere pion voor de resterende '+(7-split.steps)+' stappen.';update();return}await throwCardFirst();animating=true;message='Zeven verdeeld: '+split.steps+' + '+(7-split.steps)+'.';await animatePawn(split.k,split.id,split.steps);await animatePawn(k,id,7-split.steps);animating=false;await commit(true);return}
+let place=options.find(m=>m.kind==='place'&&m.k===k&&m.id===id);let normal=options.find(m=>m.kind==='move'&&m.k===k&&m.id===id);
+if(place){await throwCardFirst();animating=true;await animatePlacePawn(k,id);await capture(k,id);animating=false;message='Pion opgezet.';await commit(true);return}
+if(card.r==='7'){
+  const splits=options.filter(m=>m.kind==='split'&&m.k===k&&m.id===id);
+  const amounts=[...new Set([...splits.map(m=>m.steps),...(normal?[7]:[])])].sort((a,b)=>a-b);
+  if(!amounts.length){message='Met deze pion is geen geldige zet met de 7 mogelijk.';update();return}
+  sevenPending={k,id,amounts};message='Kies hieronder hoeveel stappen je met deze pion wilt zetten.';update();return;
+}
+if(normal&&!splitMode){await throwCardFirst();animating=true;message=card.r==='7'?'Zeven stappen met één pion.':'Pion verplaatst.';await animatePawn(k,id,normal.steps);animating=false;await commit(true);return}
+message=card.r==='7'&&splitMode?'Splitsen kan niet met deze pion. Kies een andere pion of zet splitsen uit.':'Met deze kaart kun je deze pion niet verplaatsen.';update()}
+async function chooseSevenSteps(n){
+ if(animating||!sevenPending||chosen===null||hands[turn][chosen]?.r!=='7')return;
+ const {k,id,amounts}=sevenPending;
+ if(!amounts.includes(n))return;
+ sevenPending=null;
+ if(n===7){await throwCardFirst();animating=true;message='Zeven stappen met één pion.';update();try{await animatePawn(k,id,7)}finally{animating=false}await commit(true);return}
+ split={k,id,steps:n};message='Kies nu een tweede pion voor de resterende '+(7-n)+' stappen.';update();
+}
+async function discardHand(){
+ if(winner||animating)return;
+ if(anyMove()){message='Je kunt nog een kaart spelen; wegleggen mag niet.';update();return}
+ const cardsToDiscard=hands[turn].map((card,index)=>card?{card:{...card},index}:null).filter(Boolean);
+ if(!cardsToDiscard.length)return;
+ animating=true;
+ clearSelection();
+ message=names[turn]+' legt de resterende kaarten tegelijk weg.';
+ update();
+ const target=g('discard');
+ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const botDiscard=gameMode==='bots'&&turn!==0;
+ const handCards=botDiscard?[]:[...g('hand').querySelectorAll('.playingcard')];
+ const origin=botDiscard?cardOriginForPlayer(turn):(handCards[0]?.getBoundingClientRect());
+ let bundle=null;
+ try{
+  if(target&&origin&&origin.width&&!reduced){
+   const end=target.getBoundingClientRect();
+   bundle=document.createElement('div');
+   bundle.className='discard-bundle';
+   bundle.style.cssText=`left:${origin.left}px;top:${origin.top}px;width:${origin.width}px;height:${origin.height}px;`;
+   // Alle overgebleven kaarten vormen één stapeltje, met één gezamenlijke vlucht.
+   cardsToDiscard.forEach(({card},i)=>{
+    const face=botDiscard?document.createElement('div'):handCards[i]?.cloneNode(true);
+    if(!face)return;
+    if(botDiscard){face.className='playingcard card-back';face.innerHTML='<span class="card-back-ornament">♛</span>';}
+    face.classList.remove('active','unplayable');
+    face.classList.add('discard-bundle-card');
+    const layer=Math.min(i,4);
+    face.style.cssText=`position:absolute!important;left:${layer*2}px;top:${-layer*3}px;width:100%;height:100%;transform:rotate(${(layer-2)*2}deg);pointer-events:none;`;
+    bundle.append(face);
+   });
+   document.body.append(bundle);
+   const x=end.left+end.width/2-origin.left-origin.width/2;
+   const y=end.top+end.height/2-origin.top-origin.height/2;
+   const motion=bundle.animate([
+    {transform:'translate(0,0) scale(1) rotate(0deg)',opacity:1,offset:0},
+    {transform:`translate(${x*.52}px,${y*.52-38}px) scale(.88) rotate(-5deg)`,opacity:1,offset:.53},
+    {transform:`translate(${x}px,${y}px) scale(.47) rotate(-10deg)`,opacity:1,offset:.94},
+    {transform:`translate(${x}px,${y}px) scale(.47) rotate(-10deg)`,opacity:0,offset:1}
+   ],{duration:850,easing:'ease-in-out',fill:'forwards'});
+   await motion.finished.catch(()=>{});
+  }
+  for(const {index} of cardsToDiscard)hands[turn][index]=null;
+  discarded+=cardsToDiscard.length;
+  if(!botDiscard)lastPlayed={...cardsToDiscard[cardsToDiscard.length-1].card,by:turn};
+ }finally{
+  bundle?.remove();
+  animating=false;
+ }
+ message=names[turn]+' heeft de kaarten weggelegd.';
+ advance();
+}
+
+let lastBoardMessage='', boardMessageTimer=null;
+function showBoardMessage(text, warning=false, persistent=false){
+ const box=g('boardMessage');
+ if(text===lastBoardMessage && !box.hidden && box.classList.contains('warning')===warning)return;
+ lastBoardMessage=text;
+ clearTimeout(boardMessageTimer);
+ box.textContent=text;
+ box.classList.toggle('warning',warning);
+ box.hidden=!text;
+ if(text && !persistent)boardMessageTimer=setTimeout(()=>{box.hidden=true;lastBoardMessage=''},3800);
+}
+
+function royalIllustration(rank,suit){
+ const ns='http://www.w3.org/2000/svg';
+ const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 56 84');svg.setAttribute('class','royal-art');svg.setAttribute('aria-hidden','true');
+ const red='♥♦'.includes(suit),robe=rank==='B'?'#266b87':rank==='V'?'#a93e62':'#244d8c';
+ const trim=rank==='B'?'#e2c06e':rank==='V'?'#f1d88e':'#f4ca5a';
+ const mk=(tag,attrs,parent=svg)=>{const e=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);parent.append(e);return e};
+ mk('rect',{x:0,y:0,width:56,height:84,fill:'#f5e8c9'});
+ mk('path',{d:'M2 2H54V82H2Z',fill:'none',stroke:'#bc9b57','stroke-width':1.2});
+ mk('path',{d:'M4 4L52 80M52 4L4 80',stroke:'#d2b36d','stroke-width':.8,opacity:.65});
+ mk('path',{d:'M0 66Q28 40 56 66V84H0Z',fill:robe});
+ mk('path',{d:'M0 66Q28 40 56 66',fill:'none',stroke:trim,'stroke-width':3});
+ mk('path',{d:'M7 83L19 56 28 72 37 56 49 83',fill:'none',stroke:trim,'stroke-width':3});
+ mk('path',{d:'M18 51L28 66 38 51',fill:'#faf3e4',stroke:trim,'stroke-width':1});
+ mk('path',{d:'M19 22Q28 12 37 22L37 44Q28 55 19 44Z',fill:'#e7b78e',stroke:'#8b5d44','stroke-width':1});
+ mk('path',{d:'M18 30Q14 19 20 14Q28 8 36 14Q42 21 38 31L36 23Q28 18 20 24Z',fill:rank==='V'?'#663b27':'#704c30'});
+ mk('path',{d:'M21 33h5m4 0h5',stroke:'#473e38','stroke-width':1.4,'stroke-linecap':'round'});
+ mk('path',{d:'M28 34l-1 6h3',fill:'none',stroke:'#ad7556','stroke-width':.9});
+ mk('path',{d:'M24 44q4 3 8 0',fill:'none',stroke:'#914f50','stroke-width':1.2});
+ if(rank==='H'){
+  mk('path',{d:'M20 46Q28 62 36 46L34 54Q28 60 22 54Z',fill:'#6e4930'});
+  mk('path',{d:'M16 17L13 5 22 10 28 3 34 10 43 5 40 17Z',fill:'#f2c454',stroke:'#916b24','stroke-width':1.4});
+  for(const x of [19,28,37])mk('circle',{cx:x,cy:12,r:2,fill:red?'#be3348':'#2b7798'});
+ }else if(rank==='V'){
+  mk('path',{d:'M15 19L19 8 28 3 37 8 41 19Z',fill:'#e3b54e',stroke:'#95642c','stroke-width':1.2});
+  mk('circle',{cx:28,cy:9,r:3,fill:'#a83250'});
+  mk('path',{d:'M18 23Q11 42 17 51M38 23Q45 42 39 51',stroke:'#72442c','stroke-width':5,fill:'none'});
+ }else{
+  mk('path',{d:'M15 18L21 9 28 15 35 9 41 18L38 23H18Z',fill:'#e6bc59',stroke:'#a87a32','stroke-width':1.1});
+  mk('path',{d:'M40 50L48 16',stroke:'#8b5b2b','stroke-width':2.5});
+  mk('path',{d:'M44 13L48 6 52 13 48 21Z',fill:'#e6c46d',stroke:'#966d2d','stroke-width':1});
+ }
+ mk('path',{d:'M5 5h8m-8 0v8M51 79h-8m8 0v-8',stroke:red?'#a63144':'#315b78','stroke-width':2,fill:'none'});
+ return svg;
+}
+
+function setupAvatarPicker(){
+ const picker=g('avatarPicker');
+ picker.replaceChildren();
+ avatarChoices.forEach((symbol,i)=>{
+  const button=document.createElement('button');
+  button.type='button';button.className='avatar-option'+(i===chosenAvatar?' selected':'');
+  button.textContent=symbol;button.setAttribute('aria-label','Kies avatar '+symbol);
+  button.setAttribute('aria-pressed',String(i===chosenAvatar));
+  button.onclick=()=>{
+   chosenAvatar=i;
+   [...picker.children].forEach((b,j)=>{b.classList.toggle('selected',j===i);b.setAttribute('aria-pressed',String(j===i));});
+  };
+  picker.append(button);
+ });
+}
+function startMode(mode){
+ gameMode=mode==='solo'?'bots':mode;
+ teamMode=mode!=='solo';
+ playerName=(g('playerName').value.trim()||'Speler').slice(0,18);
+ names[0]=playerName;
+ playerAvatars[0]=avatarChoices[chosenAvatar];
+ if(mode==='bots'||mode==='solo'){
+  const pool=botNamePool.filter(n=>n.toLowerCase()!==playerName.toLowerCase());
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  names[1]=pool[0];names[2]=pool[1];names[3]=pool[2];
+  const botAvatars=avatarChoices.filter((_,i)=>i!==chosenAvatar);
+  for(let i=botAvatars.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[botAvatars[i],botAvatars[j]]=[botAvatars[j],botAvatars[i]];}
+  playerAvatars[1]=botAvatars[0];playerAvatars[2]=botAvatars[1];playerAvatars[3]=botAvatars[2];
+ }else{names[1]='Paars';names[2]='Geel';names[3]='Groen';playerAvatars[1]='🦊';playerAvatars[2]='🐻';playerAvatars[3]='🐼';}
+ g('modeScreen').hidden=true;
+ g('rules').dataset.teamRules ||= g('rules').textContent;
+ g('rules').textContent=teamMode?g('rules').dataset.teamRules||g('rules').textContent:(g('rules').dataset.teamRules||g('rules').textContent)+' SOLO: iedereen speelt voor zichzelf. Je mag nooit de pionnen van een teamgenoot spelen. De eerste speler met alle vier de pionnen in de finish wint.';
+ init();
+}
+function botMoveScore(opt,card){
+ let score=Math.random()*3;
+ if(opt.kind==='place')return 110+score;
+ if(opt.kind==='swap')return 35+score;
+ const pieces=opt.kind==='split'?[[opt.k,opt.id,opt.steps],[opt.k2,opt.j,opt.steps2]]:[[opt.k,opt.id,opt.steps]];
+ for(const [k,id,steps] of pieces){
+  const before=pawns[k][id],after=destination(k,before,steps);
+  if(after?.state==='finish')score+=95;
+  if(before.state==='finish')score+=40;
+  score+=Math.max(0,steps)*1.2;
+  if(after?.state==='track'){
+   const dest=loc(k,after);
+   for(let enemy=0;enemy<4;enemy++)if(enemy!==k)for(let j=0;j<4;j++)
+    if(loc(enemy,pawns[enemy][j])===dest)score+=70;
+  }
+ }
+ return score;
+}
+async function runBotTurn(expectedTurn){
+ if(botBusy||gameMode!=='bots'||!gameStarted||winner||dealing||animating||turn!==expectedTurn||turn===0)return;
+ botBusy=true;
+ try{
+  await pause(420);
+  if(winner||dealing||animating||turn!==expectedTurn)return;
+  const options=[];
+  hands[turn].forEach((card,index)=>{
+   if(card)for(const opt of movesForCard(card))options.push({...opt,index,card});
+  });
+  if(!options.length){await discardHand();return;}
+  options.sort((a,b)=>botMoveScore(b,b.card)-botMoveScore(a,a.card));
+  const opt=options[0];
+  chosen=opt.index;
+  message=names[turn]+' denkt na…';
+  update();
+  await pause(350);
+  await throwCardFirst();
+  botThrownIndex=opt.index;
+  update(); // De gespeelde kaart verdwijnt direct uit de zichtbare computerhand.
+  animating=true;
+  try{
+   if(opt.kind==='place'){
+    await animatePlacePawn(opt.k,opt.id);
+    await capture(opt.k,opt.id);
+   }else if(opt.kind==='swap'){
+    await animateSwapPawns(opt.k,opt.id,opt.other,opt.j);
+   }else if(opt.kind==='split'){
+    message='De computer verdeelt de zeven.';
+    await animatePawn(opt.k,opt.id,opt.steps);
+    await animatePawn(opt.k2,opt.j,opt.steps2);
+   }else{
+    await animatePawn(opt.k,opt.id,opt.steps);
+   }
+  }finally{animating=false}
+  await commit(true);
+ }catch(e){
+  console.error('Computerzet:',e);
+  revealedBotCard=null;botThrownIndex=null;animating=false;message='Er ging iets mis bij de computerzet.';update();
+ }finally{
+  botBusy=false;
+  if(gameMode==='bots'&&turn!==0&&!winner&&!dealing&&!animating){
+   clearTimeout(botTimer);botTimer=setTimeout(()=>runBotTurn(turn),650);
+  }
+ }
+}
+function scheduleBot(){
+ if(gameMode!=='bots'||!gameStarted||winner||turn===0||animating||dealing||botBusy)return;
+ clearTimeout(botTimer);
+ const expected=turn;
+ botTimer=setTimeout(()=>runBotTurn(expected),650);
+}
+// Vaste vertrekpositie van elke speler voor gespeelde én weggelegde kaarten.
+function cardOriginForPlayer(k){
+ const chip=g('playerNameBar')?.children[k];
+ if(chip){const rect=chip.getBoundingClientRect();if(rect.width&&rect.height)return {left:rect.left+rect.width/2-31,top:rect.top+rect.height/2-44,width:62,height:88};}
+ const board=g('svg')?.getBoundingClientRect();
+ if(board){const spots=[[.17,.82],[.18,.18],[.82,.18],[.82,.82]];const [x,y]=spots[k];return {left:board.left+board.width*x-31,top:board.top+board.height*y-44,width:62,height:88};}
+ return {left:innerWidth/2-31,top:innerHeight/2-44,width:62,height:88};
+}
+function makeFlyingBotCard(card){
+ const flying=document.createElement('div');
+ flying.className='playingcard';
+ if('♥♦'.includes(card.s))flying.classList.add('red');
+ flying.innerHTML='<span class="card-corner"></span><span class="card-center"></span>';
+ flying.querySelector('.card-corner').textContent=card.r+card.s;
+ flying.querySelector('.card-center').textContent=card.s;
+ return flying;
+}
+function updatePlayerLabels(){
+ const bar=g('playerNameBar');
+ const colorNames=['Rood','Paars','Geel','Groen'];
+ // Houd dezelfde naamkaartjes in de DOM: opnieuw aanmaken herstart de knipperanimatie.
+ if(bar.children.length!==4){
+  bar.replaceChildren();
+  for(let k=0;k<4;k++){
+   const chip=document.createElement('div');chip.className='player-name-chip';
+   const dot=document.createElement('span');dot.className='player-avatar';dot.setAttribute('aria-hidden','true');
+   const info=document.createElement('span');info.className='player-name-info';
+   const nm=document.createElement('strong');
+   const detail=document.createElement('small');
+   info.append(nm,detail);chip.append(dot,info);bar.append(chip);
+  }
+ }
+ names.forEach((name,k)=>{
+  const chip=bar.children[k];
+  chip.classList.toggle('is-turn',!winner&&turn===k);
+  chip.style.setProperty('--chip-color',colors[k]);
+  chip.querySelector('.player-avatar').textContent=playerAvatars[k];
+  chip.querySelector('strong').textContent=name;
+  const remaining=hands?.[k]?.filter(Boolean).length??0;
+  const visibleRemaining=Math.max(0,remaining-(gameMode==='bots'&&turn===k&&botThrownIndex!==null?1:0));
+  chip.querySelector('small').textContent=colorNames[k]+(gameMode==='bots'&&k!==0?' · computer':'')+' · '+visibleRemaining+' '+(visibleRemaining===1?'kaart':'kaarten');
+ });
+}
+function update(){
+updatePlayerLabels();
+const status=g('status');const who=winner?'GEWONNEN':names[turn].toUpperCase();const c=winner?colors[winner[0]]:colors[turn];
+status.innerHTML=`<div class="turnbox" style="--turncolor:${c}"><div class="turndot"></div><div><div class="turnsmall">${winner?'Partij afgelopen':'NU AAN DE BEURT'}</div><div class="turnwho">${who}</div><div class="turnmeta">${teamMode?'Teams':'Iedereen voor zichzelf'} · Deelronde ${round+1} · ${round%3===0?5:4} kaarten · Speel één kaart</div></div></div><div class="turnteams" style="display:${teamMode?'flex':'none'}"><span class="teamchip ${[0,2].includes(turn)?'now':''}">🔴 Rood + 🟡 Geel</span><span class="teamchip ${[1,3].includes(turn)?'now':''}">🟣 Paars + 🟢 Groen</span></div><div class="turnnotice" aria-live="polite">${message}</div>`;
+g('help').textContent=sevenPending?'Kies het aantal stappen met de knoppen hieronder.':animating?'De pion loopt vakje voor vakje. Even wachten…':winner?'Spel afgelopen.':split?'Kies een tweede pion voor de resterende '+(7-split.steps)+' stappen.':swapFrom?'Kies een andere speler om mee te ruilen.':'Kies een kaart en tik op een pion. Eén kaart per beurt.';
+let sevenBox=g('sevenChoices');sevenBox.replaceChildren();g('sevenOverlay').hidden=!sevenPending;
+if(sevenPending){let label=document.createElement('strong');label.id='sevenDialogTitle';label.textContent='🃏 Kaart 7 — hoeveel stappen wil je zetten?';label.style.width='100%';sevenBox.append(label);for(let n of sevenPending.amounts){let b=document.createElement('button');b.textContent=n+' '+(n===1?'stap':'stappen');b.onclick=()=>chooseSevenSteps(n);sevenBox.append(b)}let cancel=document.createElement('button');cancel.textContent='Annuleren';cancel.onclick=()=>{sevenPending=null;message='Kies een pion om de 7 te spelen.';update()};sevenBox.append(cancel)}
+let hand=g('hand');hand.replaceChildren();hands[gameMode==='bots'?0:turn].forEach((c,i)=>{if(!c)return;
+const isOtherTurn=gameMode==='bots'&&turn!==0;const available=!isOtherTurn&&movesForCard(c).length>0;let b=document.createElement('button');b.className='playingcard'+('♥♦'.includes(c.s)?' red':'')+(chosen===i?' active':'')+(!available?' unplayable':'');const corner=document.createElement('span');corner.className='card-corner';const rank=document.createElement('span');rank.textContent=c.r;const suit=document.createElement('span');suit.className='card-small-suit';suit.textContent=c.s;corner.append(rank,suit);const bottom=corner.cloneNode(true);bottom.classList.add('bottom');const center=document.createElement('span');center.className='card-center'+(['B','V','H'].includes(c.r)?' face':'')+(c.r==='A'?' ace':'');if(['B','V','H'].includes(c.r)){const figure=royalIllustration(c.r,c.s);const faceSuit=document.createElement('span');faceSuit.className='face-suit';faceSuit.textContent=c.s;center.append(figure,faceSuit)}else{center.textContent=c.s}b.append(corner,center,bottom);b.disabled=animating||isOtherTurn;b.title=available?'Deze kaart kan gespeeld worden':'Geen geldige zet met deze kaart';b.setAttribute('aria-label',c.r+' '+c.s+(available?', speelbaar':', niet speelbaar'));b.onclick=()=>{if(animating||(gameMode==='bots'&&turn!==0))return;chosen=i;split=null;swapFrom=null;splitMode=false;sevenPending=null;message=!available?'⛔ Deze kaart kun je niet spelen. Kies een andere kaart.':c.r==='7'?'Kaart 7 gekozen. Tik op een pion en kies hoeveel stappen je wilt zetten.':'Kaart '+c.r+c.s+' gekozen.';update()};hand.append(b)});
+// Markeer uitsluitend pionnen die op dit moment een geldige keuze zijn.
+const highlighted=new Set();
+if(chosen!==null && !animating && !winner && hands[turn][chosen]){
+ const card=hands[turn][chosen],opts=movesForCard(card);
+ if(card.r==='B' && swapFrom){
+  opts.filter(m=>m.kind==='swap'&&m.k===swapFrom.k&&m.id===swapFrom.id)
+      .forEach(m=>highlighted.add(m.other+':'+m.j));
+ }else if(split){
+  opts.filter(m=>m.kind==='split'&&m.k===split.k&&m.id===split.id&&m.steps===split.steps)
+      .forEach(m=>highlighted.add(m.k2+':'+m.j));
+ }else if(!sevenPending){
+  opts.forEach(m=>highlighted.add(m.k+':'+m.id));
+ }
+}
+pawnLayer.replaceChildren();pawns.forEach((arr,k)=>arr.forEach((p,i)=>{let xy=p.state==='home'?homes[k][i]:p.state==='finish'?finish[k][p.progress-64]:points[((pawnStarts[k]+p.progress)%64+64)%64];let [x,y]=xy;let canPlay=highlighted.has(k+':'+i);
+let group=el('g',{class:canPlay?'pawn-can-play':''},pawnLayer);
+if(canPlay)el('circle',{cx:x,cy:y,r:29,fill:'none',stroke:'#fff0a0','stroke-width':4,opacity:'.8',class:'pawn-halo'},group);
+// Massieve, gedraaide speelstukken met zichtbaar voetstuk, bolling en lakglans.
+const shades=['red','purple','yellow','green'],material='url(#pawn3d-'+shades[k]+')';
+const gloss='url(#pawn-gloss-'+shades[k]+')';
+// De schaduw ligt OP het bord; de pion staat daar duidelijk boven.
+el('ellipse',{cx:x+7,cy:y+12,rx:23,ry:10,fill:'#120b07',opacity:'.54',class:'pawn-3d-shadow'},group);
+const piece=el('g',{transform:`translate(${x} ${y}) scale(1.22 1.52) translate(${-x} ${-y})`},group);
+// Houten/gelakte sokkel: drie zichtbare ringen maken de dikte voelbaar.
+el('ellipse',{cx:x,cy:y+7,rx:17,ry:7.5,fill:'#2b160f',opacity:'.95'},piece);
+el('path',{d:`M ${x-17} ${y+1} Q ${x} ${y+10} ${x+17} ${y+1} L ${x+17} ${y+6} Q ${x} ${y+15} ${x-17} ${y+6} Z`,fill:material,stroke:'#432316','stroke-width':1.4},piece);
+el('ellipse',{cx:x,cy:y+1,rx:17,ry:7,fill:gloss,stroke:'#f7dfa9','stroke-width':1.25},piece);
+// Eén doorlopend gedraaid lichaam, zonder vlakke rechthoekige hals.
+el('path',{d:`M ${x-14} ${y+1} C ${x-15} ${y-5} ${x-8} ${y-9} ${x-7} ${y-17} C ${x-6} ${y-21} ${x-7} ${y-26} ${x-5} ${y-29} C ${x-8} ${y-34} ${x-7} ${y-39} ${x-3} ${y-41} L ${x+3} ${y-41} C ${x+7} ${y-39} ${x+8} ${y-34} ${x+5} ${y-29} C ${x+7} ${y-26} ${x+6} ${y-21} ${x+7} ${y-17} C ${x+8} ${y-9} ${x+15} ${y-5} ${x+14} ${y+1} Q ${x} ${y+9} ${x-14} ${y+1} Z`,fill:gloss,stroke:'#3b251a','stroke-width':1.35,class:'pawn-3d-body'},piece);
+// Gebolde schouders, gedraaide hals en bolvormige knop.
+el('ellipse',{cx:x,cy:y-18,rx:7.7,ry:3.2,fill:material,stroke:'#f7d9a0','stroke-width':.9},piece);
+el('ellipse',{cx:x,cy:y-29,rx:6.6,ry:3,fill:gloss,stroke:'#4b2a1b','stroke-width':.9},piece);
+el('circle',{cx:x,cy:y-43,r:11.5,fill:gloss,stroke:'#40291c','stroke-width':1.35,class:'pawn-3d-top'},piece);
+el('ellipse',{cx:x-3.7,cy:y-47.4,rx:4.4,ry:3.2,fill:'#fffce9',opacity:'.72','pointer-events':'none'},piece);
+el('path',{d:`M ${x-9} ${y-3} Q ${x-11} ${y-9} ${x-7} ${y-15} M ${x-3} ${y-27} Q ${x-5} ${y-34} ${x-2} ${y-38}`,fill:'none',stroke:'#fff6d9',opacity:'.42','stroke-width':2.3,'stroke-linecap':'round','pointer-events':'none'},piece);
+el('path',{d:`M ${x+9} ${y-9} Q ${x+15} ${y-3} ${x+11} ${y+1}`,fill:'none',stroke:'#170d0a',opacity:'.32','stroke-width':2.5,'stroke-linecap':'round','pointer-events':'none'},piece);
+// Pionnummers verborgen; het aanraakvlak blijft ongewijzigd.
+el('ellipse',{cx:x,cy:y-24,rx:30,ry:54,fill:'transparent',style:'cursor:pointer'},group).addEventListener('click',()=>perform(k,i))}));
+let cardGroup=g('cards');cardGroup.replaceChildren();
+if(lastPlayed){
+ const red='♥♦'.includes(lastPlayed.s),ink=red?'#b82236':'#1d2930';
+ let pile=el('g',{transform:'translate(500 507)'},cardGroup);
+ for(let j=0;j<Math.min(discarded-1,3);j++)el('rect',{x:-35+j*3,y:-48-j*2,width:70,height:96,rx:7,fill:'#e9d7b4',stroke:'#9b7449','stroke-width':2,transform:`rotate(${-12+j*5})`},pile);
+ let card=el('g',{transform:'rotate(-7)'},pile);
+ el('rect',{x:-36,y:-49,width:72,height:98,rx:7,fill:'#fffdf2',stroke:'#d5b57a','stroke-width':3,filter:'url(#shadow)'},card);
+ el('text',{x:-26,y:-25,'font-size':17,'font-weight':'bold',fill:ink},card).textContent=lastPlayed.r;
+ el('text',{x:0,y:17,'text-anchor':'middle','font-size':44,fill:ink},card).textContent=lastPlayed.s;
+ el('text',{x:26,y:39,'font-size':15,'text-anchor':'end',fill:ink},card).textContent=lastPlayed.r;
+ el('text',{x:500,y:581,'text-anchor':'middle','font-size':15,fill:'#f6e5c2','font-weight':'bold'},cardGroup).textContent='Laatst: '+names[lastPlayed.by]+' · '+lastPlayed.r+lastPlayed.s;
+}else{
+ el('text',{x:500,y:517,'text-anchor':'middle',fill:'#f2ce91','font-size':48},cardGroup).textContent='♠';
+ el('text',{x:500,y:558,'text-anchor':'middle',fill:'#f2ce91','font-size':15},cardGroup).textContent='Nog geen kaart gespeeld';
+}
+const noMoves=!winner&&!animating&&!dealing&&(gameMode!=='bots'||turn===0)&&hands[turn].some(Boolean)&&!anyMove();if(noMoves){showBoardMessage('')}else if(winner){showBoardMessage(message,false,true)}else if(message){showBoardMessage(message,/niet|geen|kan niet|ongeldig|annuleer|⛔/i.test(message),message.startsWith('⛔'))}else{showBoardMessage('')};g('noMovesWarning').hidden=!noMoves;g('discardBtn').classList.toggle('must-discard',noMoves);g('discardBtn').disabled=!!winner||animating;g('reset').disabled=animating;let seven=chosen!==null&&hands[turn][chosen]?.r==='7';g('cancelBtn').hidden=!split&&!swapFrom;g('cancelBtn').disabled=animating;scheduleBot()}
+g('victoryClose').onclick=closeVictory;
+g('victoryAgain').onclick=()=>{closeVictory();clearTimeout(botTimer);gameStarted=false;g('modeScreen').hidden=false};
+g('discard').addEventListener('click',()=>{message='De gespeelde kaarten liggen in de pot.';update()});g('reset').onclick=()=>{if(animating)return;if(confirm('Een nieuw spel beginnen?')){clearTimeout(botTimer);gameStarted=false;g('modeScreen').hidden=false}};g('discardBtn').onclick=discardHand;g('noMovesWarning').onclick=discardHand;g('cancelBtn').onclick=()=>{if(animating)return;split=null;swapFrom=null;splitMode=false;sevenPending=null;message='Keuze geannuleerd.';update()};g('status').before(g('rules'));g('rulesBtn').onclick=()=>{const panel=g('rules');panel.hidden=!panel.hidden;g('rulesBtn').setAttribute('aria-expanded',String(!panel.hidden))};setupAvatarPicker();g('playOnline').onclick=()=>window.openKeezenOnline();g('playSolo').onclick=()=>startMode('solo');g('playBots').onclick=()=>startMode('bots');g('playLocal').onclick=()=>startMode('local');
+</script><script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js';
+import {getAuth,signInAnonymously,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js';
+import {getFirestore,doc,setDoc,getDoc,collection,onSnapshot,serverTimestamp,runTransaction,deleteDoc} from 'https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js';
+const config={apiKey:'AIzaSyBkiQN-LkjWStalizSGf8Q2BUfmdd-5yI4',authDomain:'keezen-online.firebaseapp.com',projectId:'keezen-online',storageBucket:'keezen-online.firebasestorage.app',messagingSenderId:'720393861622',appId:'1:720393861622:web:07d8cc3a773b8549c02fd7'};
+const app=initializeApp(config),auth=getAuth(app),db=getFirestore(app);
+const $=id=>document.getElementById(id);
+let uid=null,roomCode=null,room=null,players=[],stopRoom=null,stopPlayers=null,busy=false;
+const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function randomCode(){const b=new Uint32Array(6);crypto.getRandomValues(b);return Array.from(b,n=>alphabet[n%alphabet.length]).join('')}
+function say(s){$('onlineStatus').textContent=s}
+function profile(){return {name:($('playerName').value.trim()||'Speler').slice(0,18),avatar:avatarChoices[chosenAvatar]}}
+async function ensureAuth(){if(auth.currentUser)return auth.currentUser.uid;const result=await signInAnonymously(auth);return result.user.uid}
+function clearWatch(){if(stopRoom)stopRoom();if(stopPlayers)stopPlayers();stopRoom=stopPlayers=null}
+function render(){if(!room)return;const isHost=room.hostUid===uid;$('onlineSetup').hidden=true;$('onlineRoom').hidden=false;$('onlineRoomCode').textContent=roomCode;$('onlineHostOptions').hidden=!isHost;$('onlineMode').value=room.mode||'teams';$('onlineMode').disabled=room.status!=='waiting';$('onlineStart').disabled=room.status!=='waiting';const seats=$('onlineSeats');seats.replaceChildren();const bots=['🤖','🦊','🐻','🐸'];const used=players.slice(0,4);for(let i=0;i<4;i++){const p=used[i];const line=document.createElement('div');line.className='online-seat';const avatar=document.createElement('span');avatar.className='seat-avatar';avatar.textContent=p?.avatar||(room.status==='started'?bots[i]:'⚪');const desc=document.createElement('div');const strong=document.createElement('strong');strong.textContent=p?.name||(room.status==='started'?'Computer '+(i+1):'Vrije plaats');const small=document.createElement('small');small.textContent=p?(p.uid===room.hostUid?'Kamermaker · echte speler':'Echte speler'):(room.status==='started'?'Bot':'Wordt bij start een bot');desc.append(strong,small);line.append(avatar,desc);seats.append(line)}$('onlineRoomNote').textContent=room.status==='started'?'🎉 Kamer gestart met '+used.length+' echte speler(s) en '+(4-used.length)+' bots. Het online speelbord wordt in de volgende versie aangesloten.':isHost?'Je kunt starten met '+used.length+' echte speler(s); de rest wordt automatisch aangevuld met bots.':'Wachten tot de kamermaker het spel start…'}
+function watch(code){clearWatch();roomCode=code;stopRoom=onSnapshot(doc(db,'rooms',code),snap=>{if(!snap.exists()){say('Deze kamer bestaat niet meer.');return}room=snap.data();render()},e=>say('Kamer niet leesbaar: '+e.message));stopPlayers=onSnapshot(collection(db,'rooms',code,'players'),snap=>{players=snap.docs.map(d=>({uid:d.id,...d.data()})).sort((a,b)=>(a.joinedAt?.seconds||0)-(b.joinedAt?.seconds||0));render()},e=>say('Spelers niet leesbaar: '+e.message))}
+async function createRoom(){for(let attempt=0;attempt<6;attempt++){const code=randomCode();const ref=doc(db,'rooms',code);try{await runTransaction(db,async tx=>{const snap=await tx.get(ref);if(snap.exists())throw new Error('CODE_EXISTS');tx.set(ref,{hostUid:uid,status:'waiting',mode:'teams',createdAt:serverTimestamp(),startedAt:null})});await setDoc(doc(db,'rooms',code,'players',uid),{...profile(),joinedAt:serverTimestamp()});watch(code);say('Kamer aangemaakt! Deel de code met je vrienden.');return}catch(e){if(e.message==='CODE_EXISTS')continue;throw e}}throw new Error('Geen vrije kamercode gevonden')}
+async function joinRoom(){const code=$('onlineCodeInput').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(code.length!==6)throw new Error('Vul een kamercode van 6 tekens in.');const ref=doc(db,'rooms',code);const snap=await getDoc(ref);if(!snap.exists())throw new Error('Deze kamer bestaat niet.');if(snap.data().status!=='waiting')throw new Error('Deze kamer is al gestart.');await setDoc(doc(db,'rooms',code,'players',uid),{...profile(),joinedAt:serverTimestamp()});watch(code);say('Je bent aangesloten bij de kamer!')}
+async function guarded(fn){if(busy)return;busy=true;$('onlineCreate').disabled=$('onlineJoin').disabled=true;try{uid=await ensureAuth();await fn()}catch(e){console.error(e);say('⚠️ '+(e.code==='permission-denied'?'Firestore-regels blokkeren de verbinding. Stel eerst de meegeleverde beveiligingsregels in.':e.message))}finally{busy=false;$('onlineCreate').disabled=$('onlineJoin').disabled=false}}
+window.openKeezenOnline=()=>{$('onlineLayer').hidden=false;say('Verbinding met Firebase wordt voorbereid…');guarded(async()=>{await ensureAuth();say('Verbonden. Maak een kamer of voer een code in.')})};
+$('onlineCreate').onclick=()=>guarded(createRoom);$('onlineJoin').onclick=()=>guarded(joinRoom);
+$('onlineCopy').onclick=async()=>{try{await navigator.clipboard.writeText(roomCode);say('Kamercode gekopieerd!')}catch(e){say('Selecteer de code hierboven en kopieer hem.')}};
+$('onlineBack').onclick=()=>{clearWatch();room=null;roomCode=null;players=[];$('onlineRoom').hidden=true;$('onlineSetup').hidden=false;$('onlineLayer').hidden=true};
+$('onlineMode').onchange=()=>guarded(async()=>{if(room?.hostUid!==uid||room.status!=='waiting')return;await runTransaction(db,async tx=>{const ref=doc(db,'rooms',roomCode),snap=await tx.get(ref);if(!snap.exists()||snap.data().hostUid!==uid||snap.data().status!=='waiting')throw new Error('Niet toegestaan');tx.update(ref,{mode:$('onlineMode').value})})});
+$('onlineStart').onclick=()=>guarded(async()=>{if(room?.hostUid!==uid)return;await runTransaction(db,async tx=>{const ref=doc(db,'rooms',roomCode),snap=await tx.get(ref);if(!snap.exists()||snap.data().hostUid!==uid||snap.data().status!=='waiting')throw new Error('De kamer kan niet worden gestart.');tx.update(ref,{status:'started',startedAt:serverTimestamp()})});say('De wachtruimte is gestart. De online spelbesturing volgt in de volgende versie.')});
+onAuthStateChanged(auth,user=>{uid=user?.uid||null});
+</script></body></html>
